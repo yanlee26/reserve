@@ -63,7 +63,7 @@
   <!-- 顾客信息填写 -->
   <view class="form-section card">
     <view class="section-title-row" style="margin-bottom: 30rpx;">
-      <text class="section-title" style="padding-left: 0;">联系人信息</text>
+      <text class="section-title">联系人信息</text>
     </view>
     
     <view class="input-group">
