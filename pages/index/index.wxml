@@ -1,0 +1,101 @@
+<!--pages/index/index.wxml-->
+<view class="container page-index animate-fade-in">
+  <!-- 顶部医院品牌与诊断卡 -->
+  <view class="header-card card glass flex justify-between items-center">
+    <view class="brand-info">
+      <view class="hosp-name">上海市浦东新区中医医院</view>
+      <view class="dept-name gradient-text">少儿推拿服务中心</view>
+      <view class="diagnosis-info" wx:if="{{diagnosisId}}">就诊单号: {{diagnosisId}}</view>
+    </view>
+    <view class="diagnosis-badge">
+      <text class="badge-text">已验证诊断单</text>
+    </view>
+  </view>
+
+  <!-- 核心操作版块 (横向并排) -->
+  <view class="action-grid">
+    <view class="action-card btn-book-tuina card" bindtap="goToBook">
+      <view class="btn-icon">📅</view>
+      <text class="btn-title">预约推拿</text>
+      <text class="btn-desc">在线极速预约</text>
+    </view>
+    
+    <view class="action-card btn-notice card" bindtap="showNotice">
+      <view class="btn-icon">📝</view>
+      <text class="btn-title">推拿须知</text>
+      <text class="btn-desc">就诊流程指南</text>
+    </view>
+  </view>
+
+  <!-- 我的预约单列表 -->
+  <view class="section-title">
+    <text class="title-text">我的预约单</text>
+  </view>
+
+  <view class="booking-list">
+    <view class="booking-card card" wx:for="{{bookings}}" wx:key="id">
+      <view class="booking-header flex justify-between items-center">
+        <text class="appoint-time {{item.status === 'cancelled' ? 'cancelled' : ''}}">{{item.date}} {{item.time}}</text>
+        <text class="status-tag {{item.status === 'cancelled' ? 'cancelled' : ''}}">{{item.status === 'pending' ? '待服务' : '已取消'}}</text>
+      </view>
+      
+      <view class="booking-body">
+        <view class="booking-row flex items-baseline">
+          <text class="row-label">预约人：</text>
+          <text class="row-val">{{item.patientName}}</text>
+        </view>
+        
+        <view class="booking-row flex items-baseline" wx:if="{{item.remarks}}">
+          <text class="row-label">备注要求：</text>
+          <text class="row-val">{{item.remarks}}</text>
+        </view>
+        
+        <view class="cancel-reason-box flex items-start" wx:if="{{item.status === 'cancelled' && item.cancelReason}}">
+          <text class="row-label">取消原因：</text>
+          <text class="row-val cancel-reason">{{item.cancelReason}}</text>
+        </view>
+      </view>
+
+      <view class="booking-actions flex justify-between" wx:if="{{item.status === 'pending'}}">
+        <button class="cancel-action-btn" bindtap="onCancelBooking" data-id="{{item.id}}">取消预约</button>
+        <button class="modify-btn" bindtap="goToEdit" data-id="{{item.id}}">修改预约</button>
+      </view>
+    </view>
+
+    <!-- 暂无预约单状态 -->
+    <view class="empty-state" wx:if="{{bookings.length === 0}}">
+      <icon type="info" size="50" color="#cbd5e1" />
+      <text class="empty-text">您当前暂无推拿预约记录</text>
+      <button class="btn btn-primary quick-book-btn" bindtap="goToBook">立即预约</button>
+    </view>
+  </view>
+
+  <!-- 须知弹窗 (Notice Modal) -->
+  <view class="modal-mask" wx:if="{{showNoticeModal}}" bindtap="closeNotice"></view>
+  <view class="notice-modal {{showNoticeModal ? 'show' : ''}}" wx:if="{{showNoticeModal}}">
+    <view class="modal-close" bindtap="closeNotice">✕</view>
+    <view class="modal-title">少儿推拿须知</view>
+    <scroll-view scroll-y="true" class="modal-scroll-body">
+      <view class="notice-paragraph">
+        <text class="p-title">一、预约条件</text>
+        <text class="p-content">本预约系统仅面向已在我院儿童中医保健科门诊就诊、并由主治医生开具推拿疗程处方的患儿。预约时须提供有效的诊断单号。</text>
+      </view>
+      
+      <view class="notice-paragraph">
+        <text class="p-title">二、时间与疗程</text>
+        <text class="p-content">1. 预约时间段每20分钟为一档，请严格按照预约时间提前10分钟到诊区候诊。\n2. 如需修改预约时间，必须在预约时间段前至少提前2小时通过主页“修改预约”按钮进行调整。</text>
+      </view>
+
+      <view class="notice-paragraph">
+        <text class="p-title">三、注意事项</text>
+        <text class="p-content">1. 患儿推拿前半小时请勿过饱饮食，以防引起呕吐。\n2. 如患儿有急性高热（体温>38.5℃）、局部皮肤破损或传染性皮肤病，请暂缓推拿，并及时告知门诊医生。</text>
+      </view>
+    </scroll-view>
+    <button class="btn btn-primary modal-ok-btn" bindtap="closeNotice">我知道了</button>
+  </view>
+
+  <!-- 底部注销登录链接 -->
+  <view class="logout-link-box">
+    <text class="logout-btn" bindtap="onLogout">切换账号/注销登录</text>
+  </view>
+</view>

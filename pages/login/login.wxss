@@ -1,0 +1,127 @@
+/* pages/login/login.wxss */
+
+.page-login {
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.login-card {
+  width: 100%;
+  padding: 50rpx 40rpx;
+  background-color: #ffffff;
+  margin: 0rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 品牌区 */
+.hospital-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.logo-box {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.name-zh {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 8rpx;
+}
+
+.sub-name {
+  font-size: 26rpx;
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+/* 提示须知 */
+.notice-box {
+  background-color: #fffbeb;
+  border: 1rpx solid #fef3c7;
+  border-radius: var(--radius-md);
+  padding: 24rpx;
+  margin-bottom: 40rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.notice-title {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #b45309;
+}
+
+.notice-text {
+  font-size: 22rpx;
+  color: #d97706;
+  line-height: 1.6;
+}
+
+/* 输入表单 */
+.form-area {
+  margin-bottom: 60rpx;
+}
+
+.input-item {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.input-item .label {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+.login-input {
+  background-color: var(--bg-main);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+  height: 88rpx;
+  padding: 0 28rpx;
+  font-size: 28rpx;
+  color: var(--text-main);
+  transition: border-color 0.2s;
+}
+
+.login-input:focus {
+  border-color: var(--primary);
+}
+
+.test-tip {
+  font-size: 22rpx;
+  color: var(--text-light);
+  font-style: italic;
+  margin-top: 6rpx;
+}
+
+/* 登录按钮 */
+.action-area {
+  width: 100%;
+}
+
+.login-btn {
+  height: 96rpx;
+  border-radius: var(--radius-full);
+}

@@ -1,0 +1,388 @@
+/* pages/index/index.wxss */
+
+.page-index {
+  padding: 24rpx;
+  background-color: var(--bg-main);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 顶部医院头 */
+.header-card {
+  margin: 0 0 28rpx 0;
+  padding: 30rpx 36rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(204, 251, 241, 0.3) 100%);
+  border: 2rpx solid rgba(13, 148, 136, 0.1);
+}
+
+.hosp-name {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.dept-name {
+  font-size: 38rpx;
+  font-weight: 800;
+  margin-top: 6rpx;
+  display: inline-block;
+}
+
+.diagnosis-info {
+  font-size: 22rpx;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 8rpx;
+}
+
+.diagnosis-badge {
+  background-color: var(--primary-light);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  border-radius: var(--radius-full);
+  padding: 6rpx 20rpx;
+}
+
+.badge-text {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* 操作区域 */
+.action-grid {
+  display: flex;
+  margin: 0 0 36rpx 0;
+  gap: 24rpx;
+  padding: 0;
+}
+
+.action-card {
+  flex: 1;
+  margin: 0 !important; /* 覆盖全局 card 边距 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 20rpx;
+  text-align: center;
+}
+
+.btn-icon {
+  font-size: 60rpx;
+  margin-bottom: 20rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-book-tuina .btn-icon {
+  background-color: #ccfbf1;
+}
+
+.btn-notice .btn-icon {
+  background-color: #e0f2fe;
+}
+
+.btn-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8rpx;
+}
+
+.btn-desc {
+  font-size: 22rpx;
+  color: var(--text-light);
+}
+
+/* 模块标题 */
+.section-title {
+  padding-left: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.title-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--text-main);
+  position: relative;
+  padding-left: 20rpx;
+}
+
+.title-text::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  width: 6rpx;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+}
+
+/* 预约单列表 */
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.booking-card {
+  margin: 0;
+  padding: 30rpx;
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid var(--border-color);
+  margin-bottom: 24rpx;
+}
+
+.appoint-time {
+  color: var(--primary);
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.appoint-time.cancelled {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.status-tag {
+  color: var(--primary);
+  background-color: var(--primary-light);
+  padding: 6rpx 18rpx;
+  border-radius: var(--radius-sm);
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.status-tag.cancelled {
+  color: var(--text-muted);
+  background-color: #f1f5f9;
+}
+
+.booking-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.booking-row {
+  font-size: 26rpx;
+  line-height: 1.5;
+  display: flex;
+}
+
+.row-label {
+  color: var(--text-muted);
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.row-val {
+  color: var(--text-main);
+  font-weight: 600;
+  flex: 1;
+}
+
+/* 取消原因块级设计 */
+.cancel-reason-box {
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  background-color: #fef2f2;
+  border-radius: var(--radius-sm);
+  border-left: 6rpx solid #ef4444;
+  display: flex;
+}
+
+.cancel-reason-box .row-label {
+  color: #b91c1c;
+  font-weight: 600;
+  font-size: 24rpx;
+  width: 130rpx;
+  flex-shrink: 0;
+}
+
+.cancel-reason-box .cancel-reason {
+  color: #991b1b;
+  font-weight: 500;
+  font-size: 24rpx;
+  flex: 1;
+}
+
+.booking-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid var(--border-color);
+}
+
+.cancel-action-btn {
+  height: 60rpx;
+  line-height: 56rpx;
+  border-radius: var(--radius-full);
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--text-sub);
+  background-color: #ffffff;
+  border: 2rpx solid var(--border-color);
+  padding: 0 32rpx;
+  transition: all 0.2s;
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.cancel-action-btn:active {
+  background-color: #f1f5f9;
+}
+
+.modify-btn {
+  height: 60rpx;
+  line-height: 56rpx;
+  border-radius: var(--radius-full);
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--primary);
+  border: 2rpx solid var(--primary);
+  padding: 0 32rpx;
+  transition: all 0.2s;
+  margin: 0 !important;
+  width: auto !important;
+  box-shadow: 0 4rpx 10rpx -2rpx rgba(13, 148, 136, 0.2);
+}
+
+.modify-btn:active {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* 弹窗须知样式 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  z-index: 200;
+  backdrop-filter: blur(4px);
+  animation: fadeInMask 0.2s ease-out;
+}
+
+@keyframes fadeInMask {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.notice-modal {
+  position: fixed;
+  left: 50rpx;
+  right: 50rpx;
+  top: 50%;
+  transform: translateY(-50%) scale(0.9);
+  background-color: #ffffff;
+  border-radius: var(--radius-lg);
+  z-index: 201;
+  padding: 40rpx;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.notice-modal.show {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: var(--text-main);
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.modal-scroll-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-bottom: 40rpx;
+}
+
+.notice-paragraph {
+  margin-bottom: 28rpx;
+}
+
+.p-title {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--primary);
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.p-content {
+  font-size: 24rpx;
+  color: var(--text-sub);
+  line-height: 1.6;
+  text-align: justify;
+  display: block;
+}
+
+.modal-ok-btn {
+  height: 88rpx;
+  border-radius: var(--radius-full);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 40rpx;
+  background-color: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 2rpx dashed var(--border-color);
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: var(--text-light);
+  margin: 20rpx 0 36rpx 0;
+}
+
+.quick-book-btn {
+  width: 280rpx !important;
+  height: 80rpx;
+  border-radius: var(--radius-full);
+  font-size: 26rpx;
+}
+
+/* 注销登录 */
+.logout-link-box {
+  display: flex;
+  justify-content: center;
+  margin: 60rpx 0 30rpx 0;
+}
+
+.logout-btn {
+  font-size: 24rpx;
+  color: var(--text-light);
+  text-decoration: underline;
+}
+
+.logout-btn:active {
+  color: var(--danger);
+}

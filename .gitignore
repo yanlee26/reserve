@@ -1,0 +1,13 @@
+# WeChat Mini Program Ignore Files
+node_modules/
+.DS_Store
+project.private.config.json
+unpackage/
+dist/
+*.log
+.idea/
+.vscode/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+env.js

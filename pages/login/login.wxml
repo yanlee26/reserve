@@ -1,0 +1,43 @@
+<!--pages/login/login.wxml-->
+<view class="container page-login animate-fade-in">
+  <view class="login-card card glass">
+    <!-- 医院品牌展示 -->
+    <view class="hospital-brand">
+      <view class="logo-box">🏩</view>
+      <view class="name-zh">上海市浦东新区中医医院</view>
+      <view class="sub-name">少儿推拿预约中心</view>
+    </view>
+
+    <!-- 说明须知 -->
+    <view class="notice-box">
+      <text class="notice-title">⚠️ 就诊预约前须知</text>
+      <text class="notice-text">根据本院儿童保健科规定：只有经过医生线下诊断，持有医生诊断/处方单的患儿，方能进入系统预约推拿疗程。</text>
+    </view>
+
+    <!-- 表单输入区域 -->
+    <view class="form-area">
+      <view class="input-item">
+        <text class="label">医生诊断单号</text>
+        <input 
+          class="login-input" 
+          placeholder="请输入就诊单上的诊断单号" 
+          value="{{diagnosisId}}" 
+          bindinput="onInputDiagnosisId"
+          placeholder-class="placeholder"
+        />
+        <text class="test-tip">（测试可用单号: TCM-999）</text>
+      </view>
+    </view>
+
+    <!-- 登录按钮 -->
+    <view class="action-area">
+      <button 
+        class="btn btn-primary login-btn {{isFormValid ? '' : 'btn-disabled'}}" 
+        bindtap="onWechatLogin"
+        disabled="{{!isFormValid}}"
+      >
+        微信授权登录
+      </button>
+    </view>
+  </view>
+</view>

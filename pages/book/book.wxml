@@ -1,0 +1,139 @@
+<!--pages/book/book.wxml-->
+<view class="container page-book animate-fade-in">
+  <!-- 预约日期选择 (Horizontal scroll) -->
+  <view class="form-section">
+    <view class="section-title-row">
+      <text class="section-title">选择预约日期</text>
+      <text class="section-sub">{{selectedDateStr}}</text>
+    </view>
+    
+    <scroll-view class="date-scroll" scroll-x="true" scroll-with-animation="true">
+      <view 
+        wx:for="{{dateList}}" 
+        wx:key="date"
+        class="date-pill {{selectedDate === item.date ? 'active' : ''}}"
+        bindtap="selectDate"
+        data-date="{{item.date}}"
+        data-datestr="{{item.dateStr}}"
+      >
+        <text class="day-name">{{item.dayName}}</text>
+        <text class="day-date">{{item.dateShort}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 预约时间段选择 (Grid split into Morning & Afternoon) -->
+  <view class="form-section">
+    <view class="section-title-row">
+      <text class="section-title">选择时间段 (20分钟/班次)</text>
+      <text class="section-sub" wx:if="{{selectedTime}}">{{selectedTime}}</text>
+    </view>
+
+    <!-- 上午班次 -->
+    <view class="slot-header">🌅 上午时段 (08:00 - 12:00)</view>
+    <view class="time-grid">
+      <view 
+        wx:for="{{morningSlots}}" 
+        wx:key="time"
+        class="time-cell {{selectedTime === item.time ? 'active' : ''}} {{item.disabled ? 'disabled' : ''}}"
+        bindtap="selectTime"
+        data-time="{{item.time}}"
+        data-disabled="{{item.disabled}}"
+      >
+        <text class="time-val">{{item.time}}</text>
+      </view>
+    </view>
+
+    <!-- 下午班次 -->
+    <view class="slot-header" style="margin-top: 30rpx;">🌇 下午时段 (13:00 - 17:00)</view>
+    <view class="time-grid">
+      <view 
+        wx:for="{{afternoonSlots}}" 
+        wx:key="time"
+        class="time-cell {{selectedTime === item.time ? 'active' : ''}} {{item.disabled ? 'disabled' : ''}}"
+        bindtap="selectTime"
+        data-time="{{item.time}}"
+        data-disabled="{{item.disabled}}"
+      >
+        <text class="time-val">{{item.time}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 顾客信息填写 -->
+  <view class="form-section card">
+    <view class="section-title-row" style="margin-bottom: 30rpx;">
+      <text class="section-title" style="padding-left: 0;">联系人信息</text>
+    </view>
+    
+    <view class="input-group">
+      <text class="label">儿童姓名</text>
+      <input 
+        class="form-input" 
+        placeholder="请输入儿童真实姓名" 
+        value="{{name}}" 
+        bindinput="onInputName" 
+        placeholder-class="placeholder" 
+      />
+    </view>
+    
+    <view class="input-group">
+      <text class="label">联系电话</text>
+      <input 
+        class="form-input" 
+        type="number" 
+        maxlength="11" 
+        placeholder="请输入家长联系电话" 
+        value="{{phone}}" 
+        bindinput="onInputPhone" 
+        placeholder-class="placeholder" 
+      />
+    </view>
+    
+    <!-- 备注标签选择 (选填) -->
+    <view class="remark-section">
+      <text class="section-label">调理备注需求 (选填)</text>
+      <view class="remark-options">
+        <view 
+          wx:for="{{remarkOptions}}" 
+          wx:key="*this"
+          class="remark-pill {{selectedRemarkOpt === item ? 'active' : ''}}"
+          bindtap="selectRemarkOpt"
+          data-opt="{{item}}"
+        >
+          {{item}}
+        </view>
+      </view>
+
+      <!-- 其它选项下的必填文本框 -->
+      <view class="custom-remark-container animate-fade-in" wx:if="{{selectedRemarkOpt === '其它'}}">
+        <textarea 
+          class="custom-textarea" 
+          placeholder="请说明具体的病症或其它要求（必填）" 
+          value="{{customRemarks}}" 
+          bindinput="onInputCustomRemarks" 
+          placeholder-class="placeholder" 
+          rows="2"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部确认提交栏 -->
+  <view class="book-footer">
+    <view class="footer-summary">
+      <text class="time-label">已选时间</text>
+      <text class="time-summary" wx:if="{{selectedDate && selectedTime}}">{{selectedDateShort}} {{selectedTime}}</text>
+      <text class="time-summary placeholder" wx:else>请选择预约时间</text>
+    </view>
+    
+    <button 
+      class="btn btn-primary footer-submit-btn {{isSubmitEnabled ? '' : 'btn-disabled'}}" 
+      bindtap="submitBooking"
+      loading="{{submitLoading}}"
+      disabled="{{!isSubmitEnabled || submitLoading}}"
+    >
+      提交
+    </button>
+  </view>
+</view>

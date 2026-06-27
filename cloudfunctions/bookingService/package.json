@@ -1,0 +1,12 @@
+{
+  "name": "bookingService",
+  "version": "1.0.0",
+  "description": "Pediatric Tuina Booking Service Cloud Function",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
