@@ -52,10 +52,13 @@ exports.main = async (event, context) => {
         }
 
         try {
+          // 优先使用预约单上保存的模板ID，实现动态配置并保持 DRY 原则
+          const activeTemplateId = item.templateId || TEMPLATE_ID;
+
           // 发送订阅消息
           await cloud.openapi.subscribeMessage.send({
             touser: item._openid,
-            templateId: TEMPLATE_ID || '请在云端配置您的订阅模板ID',
+            templateId: activeTemplateId || '请在云端或本地env.js配置订阅模板ID',
             page: 'pages/index/index',
             data: {
               thing1: { value: item.patientName }, // 患儿姓名

@@ -82,7 +82,7 @@ function addBooking(booking) {
 }
 
 // 5. 修改预约
-function updateBooking(id, date, time, patientName, patientPhone, remarks = '') {
+function updateBooking(id, date, time, patientName, patientPhone, remarks = '', templateId = '') {
   return new Promise((resolve, reject) => {
     wx.cloud.callFunction({
       name: 'bookingService',
@@ -94,7 +94,8 @@ function updateBooking(id, date, time, patientName, patientPhone, remarks = '') 
           time,
           patientName,
           patientPhone,
-          remarks
+          remarks,
+          templateId
         }
       },
       success: res => {

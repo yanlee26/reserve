@@ -167,7 +167,7 @@ async function addBooking(bookingData) {
 }
 
 // 5. 修改预约
-async function updateBooking({ id, date, time, patientName, patientPhone, remarks }) {
+async function updateBooking({ id, date, time, patientName, patientPhone, remarks, templateId }) {
   // 5.1. 校验同人同日预约冲突 (排除自身正在修改的这一单)
   const sameDayConflict = await db.collection(COLLECTION_NAME)
     .where({
@@ -194,6 +194,7 @@ async function updateBooking({ id, date, time, patientName, patientPhone, remark
       patientName,
       patientPhone,
       remarks,
+      templateId,
       updatedAt: db.serverDate()
     }
   });

@@ -327,11 +327,13 @@ Page({
 
     const diagnosisId = wx.getStorageSync('DIAGNOSIS_ID') || 'TCM-999';
 
+    const templateId = envConfig.REMINDER_TEMPLATE_ID || '';
+
     // 统一处理异步提交逻辑
     let submitPromise;
     if (editId) {
       // 修改模式
-      submitPromise = db.updateBooking(editId, selectedDate, selectedTime, name, phone, remarks);
+      submitPromise = db.updateBooking(editId, selectedDate, selectedTime, name, phone, remarks, templateId);
     } else {
       // 新增模式
       const bookingData = {
@@ -340,7 +342,8 @@ Page({
         time: selectedTime,
         patientName: name,
         patientPhone: phone,
-        remarks: remarks
+        remarks: remarks,
+        templateId: templateId
       };
       submitPromise = db.addBooking(bookingData);
     }
