@@ -119,5 +119,20 @@ Page({
         }
       }
     });
+  },
+
+  // 1. 发送给朋友
+  onShareAppMessage() {
+    return {
+      title: '浦东新区中医医院 - 少儿推拿中心预约',
+      path: '/pages/index/index'
+    };
+  },
+
+  // 2. 分享到朋友圈
+  onShareTimeline() {
+    return {
+      title: '浦东新区中医医院 - 少儿推拿中心预约'
+    };
   }
 })
