@@ -99,10 +99,10 @@
 }
 
 .date-pill.active {
-  background-color: #ffffff;
+  background-color: var(--primary-light);
   border-color: var(--primary);
   color: var(--primary);
-  box-shadow: 0 4rpx 14rpx rgba(13, 148, 136, 0.18);
+  box-shadow: 0 6rpx 16rpx rgba(13, 148, 136, 0.15);
   transform: translateY(-2rpx);
 }
 
@@ -128,22 +128,36 @@
   color: var(--primary);
 }
 
-/* 摘要条 */
 .summary-bar {
-  margin: 10rpx 6rpx 20rpx 6rpx;
+  display: flex;
+  align-items: center;
+  margin: 12rpx 8rpx 28rpx 8rpx;
 }
 
 .summary-text {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: var(--text-sub);
   font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.summary-text::before {
+  content: '';
+  display: inline-block;
+  width: 12rpx;
+  height: 12rpx;
+  background-color: var(--primary);
+  border-radius: 50%;
+  margin-right: 12rpx;
+  box-shadow: 0 0 8rpx var(--primary);
 }
 
 .summary-text .highlight {
   color: var(--primary);
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: 800;
-  margin: 0 4rpx;
+  margin: 0 6rpx;
 }
 
 /* 简化三色网格 */
@@ -172,10 +186,9 @@
   transform: scale(0.96);
 }
 
-/* 绿色: 空闲 */
 .grid-pill.empty {
   background-color: #f0fdf4;
-  border-color: #bbf7d0;
+  border: 2rpx dashed #bbf7d0;
 }
 
 .grid-pill.empty .grid-time {
