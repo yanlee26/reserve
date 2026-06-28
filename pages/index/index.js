@@ -29,6 +29,12 @@ Page({
     this.setData({
       diagnosisId: wx.getStorageSync('DIAGNOSIS_ID') || 'TCM-999'
     });
+
+    // 双重保障：在 onShow 中也显式开启分享菜单，确保渲染完成后菜单是激活状态
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
   },
 
   loadMyBookings() {
@@ -138,7 +144,8 @@ Page({
   // 2. 分享到朋友圈
   onShareTimeline() {
     return {
-      title: '浦东新区中医医院 - 少儿推拿中心预约'
+      title: '浦东新区中医医院 - 少儿推拿中心预约',
+      query: 'from=moments'
     };
   }
 })
