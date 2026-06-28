@@ -1,6 +1,13 @@
 // pages/book/book.js
 const db = require('../../utils/db.js');
 
+let envConfig = { REMINDER_TEMPLATE_ID: '' };
+try {
+  envConfig = require('../../env.js');
+} catch (e) {
+  console.warn('提示: 未找到 env.js，将无法唤起订阅消息弹窗');
+}
+
 Page({
   data: {
     editId: '',
@@ -281,7 +288,23 @@ Page({
       content: `预约时间: ${selectedDate} ${selectedTime}\n儿童姓名: ${name}\n联系电话: ${phone}\n\n是否确认提交此预约单？`,
       success: (res) => {
         if (res.confirm) {
-          this.executeSubmit();
+          const templateId = envConfig.REMINDER_TEMPLATE_ID;
+          if (templateId) {
+            wx.requestSubscribeMessage({
+              tmplIds: [templateId],
+              success: (subRes) => {
+                console.log('订阅消息授权成功:', subRes);
+              },
+              fail: (subErr) => {
+                console.warn('订阅消息授权异常:', subErr);
+              },
+              complete: () => {
+                this.executeSubmit();
+              }
+            });
+          } else {
+            this.executeSubmit();
+          }
         }
       }
     });
