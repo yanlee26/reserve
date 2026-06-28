@@ -146,57 +146,189 @@
   margin: 0 4rpx;
 }
 
-/* 医生卡片列表 */
-.booking-list {
+/* 简化三色网格 */
+.grid-section {
+  padding: 32rpx 24rpx;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+
+.grid-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 110rpx;
+  border-radius: var(--radius-md);
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+}
+
+.grid-pill:active {
+  transform: scale(0.96);
+}
+
+/* 绿色: 空闲 */
+.grid-pill.empty {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.grid-pill.empty .grid-time {
+  color: #16a34a;
+  font-weight: 700;
+  font-size: 26rpx;
+}
+
+.grid-pill.empty .grid-state-label {
+  color: #22c55e;
+  font-size: 20rpx;
+  margin-top: 4rpx;
+}
+
+/* 黄色: 已约 (待服务) */
+.grid-pill.pending {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+  box-shadow: 0 4rpx 10rpx rgba(217, 119, 6, 0.05);
+}
+
+.grid-pill.pending .grid-time {
+  color: #d97706;
+  font-weight: 700;
+  font-size: 26rpx;
+}
+
+.grid-pill.pending .grid-state-label {
+  color: #f59e0b;
+  font-size: 20rpx;
+  font-weight: 700;
+  margin-top: 4rpx;
+}
+
+/* 红色: 已取消 */
+.grid-pill.cancelled {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.grid-pill.cancelled .grid-time {
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 26rpx;
+  text-decoration: line-through;
+}
+
+.grid-pill.cancelled .grid-state-label {
+  color: #ef4444;
+  font-size: 20rpx;
+  font-weight: 700;
+  margin-top: 4rpx;
+}
+
+/* 详情弹窗 (Modal) */
+.detail-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  backdrop-filter: blur(10rpx);
+}
+
+.detail-modal {
+  width: 85%;
+  max-width: 600rpx;
+  background-color: #ffffff;
+  padding: 0rpx;
+  overflow: hidden;
+  box-shadow: 0 20rpx 50rpx rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  padding: 30rpx 36rpx;
+  border-bottom: 2rpx solid var(--border-color);
+}
+
+.modal-title {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.modal-close {
+  font-size: 36rpx;
+  color: var(--text-muted);
+  padding: 10rpx;
+}
+
+.modal-body {
+  padding: 36rpx;
   display: flex;
   flex-direction: column;
   gap: 24rpx;
 }
 
-.booking-card {
-  padding: 0rpx; /* 去除内边距，完全通过内外边框分隔 */
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
+.modal-status-row {
+  margin-bottom: 8rpx;
 }
 
-.card-header {
-  padding: 24rpx 32rpx;
-  border-bottom: 2rpx solid var(--border-color);
+.status-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
 }
 
-.appoint-time {
-  font-size: 28rpx;
+.dot-pending {
+  background-color: #fbbf24;
+}
+
+.dot-cancelled {
+  background-color: #ef4444;
+}
+
+.text-pending {
+  color: #d97706;
   font-weight: 700;
-  color: var(--primary);
+  font-size: 26rpx;
 }
 
-.appoint-time.cancelled {
-  color: var(--text-light);
-  text-decoration: line-through;
+.text-cancelled {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 26rpx;
 }
 
-.card-body {
-  padding: 28rpx 32rpx;
+.modal-info-grid {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 20rpx;
+  background-color: var(--bg-main);
+  padding: 24rpx 28rpx;
+  border-radius: var(--radius-md);
+  border: 1rpx solid var(--border-color);
 }
 
-.info-row {
+.modal-info-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   font-size: 26rpx;
-  line-height: 1.5;
 }
 
-.info-label {
+.modal-info-label {
   color: var(--text-muted);
   width: 140rpx;
   flex-shrink: 0;
 }
 
-.info-val {
+.modal-info-val {
   color: var(--text-main);
   font-weight: 500;
 }
@@ -206,11 +338,11 @@
   font-weight: 700;
 }
 
-.phone-row {
+.phone-call-item {
   cursor: pointer;
 }
 
-.phone-row:active {
+.phone-call-item:active {
   opacity: 0.7;
 }
 
@@ -220,9 +352,8 @@
   text-decoration: underline;
 }
 
-/* 取消原因警示框 */
+/* 取消原因警告框 */
 .cancel-reason-box {
-  margin: 0 32rpx 28rpx 32rpx;
   padding: 18rpx 24rpx;
   background-color: #fef2f2;
   border-left: 6rpx solid #ef4444;
@@ -244,31 +375,21 @@
   line-height: 1.5;
 }
 
-/* 空状态 */
-.empty-state-box {
-  padding: 80rpx 40rpx;
-  background-color: #ffffff;
+.modal-footer {
+  padding: 24rpx 36rpx;
+  border-top: 2rpx solid var(--border-color);
+  background-color: var(--bg-main);
 }
 
-.empty-emoji {
-  font-size: 90rpx;
-  margin-bottom: 24rpx;
+.close-modal-btn {
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: var(--radius-full);
+  font-size: 26rpx;
+  font-weight: 700;
 }
 
-.empty-title {
-  font-size: 30rpx;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 12rpx;
-}
-
-.empty-subtitle {
-  font-size: 24rpx;
-  color: var(--text-light);
-  text-align: center;
-}
-
-/* 加载状态 */
+/* 加载动画 */
 .loading-box {
   padding: 100rpx 40rpx;
 }

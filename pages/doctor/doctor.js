@@ -8,12 +8,16 @@ Page({
     selectedDate: '',
     selectedDateShort: '',
     selectedDateStr: '',
-    bookings: [],
-    loading: false
+    bookings: [], // 原始预约数据
+    morningSlots: [], // 上午时间段网格数据
+    afternoonSlots: [], // 下午时间段网格数据
+    loading: false,
+    showDetailModal: false, // 是否展示详情弹窗
+    activeBooking: null // 当前弹窗里展示的预约数据
   },
 
   onLoad() {
-    // 角色与登录安全守卫拦截
+    // 角色安全与登录状态双重守卫
     const isLoggedIn = wx.getStorageSync('IS_LOGGED_IN');
     const role = wx.getStorageSync('ROLE');
     
@@ -28,19 +32,16 @@ Page({
       return;
     }
 
-    // 设置基本医生参数并构建日历选择器
     const docId = wx.getStorageSync('DOCTOR_ID') || 'DOC-888';
     this.setData({
       doctorId: docId
     });
 
     this.initDatePicker();
-    
-    // 加载当前选中日期（今天）的所有预约
     this.loadBookingsForSelectedDate();
   },
 
-  // 1. 生成 15 天的日期滚动选择栏
+  // 1. 初始化 15 天滚动日历数据
   initDatePicker() {
     const days = [];
     const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -78,7 +79,7 @@ Page({
     });
   },
 
-  // 2. 切换查看日期
+  // 2. 选择查看不同日期的预约网格
   onSelectDate(e) {
     const { date, short, str } = e.currentTarget.dataset;
     if (this.data.selectedDate === date) return;
@@ -92,22 +93,25 @@ Page({
     });
   },
 
-  // 3. 异步拉取选定日期下的所有家长的预约记录
+  // 3. 异步拉取当日预约，并渲染三色时间网格
   loadBookingsForSelectedDate() {
     this.setData({
-      loading: true
+      loading: true,
+      showDetailModal: false,
+      activeBooking: null
     });
 
     db.getAllBookingsByDate(this.data.selectedDate).then(list => {
       this.setData({
-        bookings: list,
-        loading: false
+        bookings: list
+      }, () => {
+        this.generateTimeGrid();
       });
     }).catch(err => {
       this.setData({
         loading: false
       });
-      console.error('医生端获取预约列表异常:', err);
+      console.error('医生端拉取日程冲突:', err);
       wx.showToast({
         title: '获取列表失败',
         icon: 'error'
@@ -115,7 +119,82 @@ Page({
     });
   },
 
-  // 4. 打电话联系家长
+  // 4. 将后端查出的预约匹配到 20 分钟时间网格中 (空闲=绿，已约=黄，取消=红)
+  generateTimeGrid() {
+    const morningTimes = [
+      '08:00', '08:20', '08:40', '09:00', '09:20', '09:40',
+      '10:00', '10:20', '10:40', '11:00', '11:20', '11:40'
+    ];
+    const afternoonTimes = [
+      '13:00', '13:20', '13:40', '14:00', '14:20', '14:40',
+      '15:00', '15:20', '15:40', '16:00', '16:20', '16:40'
+    ];
+
+    const rawList = this.data.bookings;
+
+    const mapTimeSlots = (times) => {
+      return times.map(timeStr => {
+        // 查找该时间段的预约
+        // 1. 优先寻找待服务的活跃预约
+        let matchBooking = rawList.find(b => b.time === timeStr && b.status === 'pending');
+        let state = 'empty';
+
+        if (matchBooking) {
+          state = 'pending'; // 黄色：已约待服务
+        } else {
+          // 2. 若没有活跃预约，再看是否有已取消的预约
+          matchBooking = rawList.find(b => b.time === timeStr && b.status === 'cancelled');
+          if (matchBooking) {
+            state = 'cancelled'; // 红色：取消
+          }
+        }
+
+        return {
+          time: timeStr,
+          state: state, // 'empty' | 'pending' | 'cancelled'
+          booking: matchBooking || null
+        };
+      });
+    };
+
+    this.setData({
+      morningSlots: mapTimeSlots(morningTimes),
+      afternoonSlots: mapTimeSlots(afternoonTimes),
+      loading: false
+    });
+  },
+
+  // 5. 点击时间单元网格
+  onSlotClick(e) {
+    const { slot } = e.currentTarget.dataset;
+    
+    if (slot.state === 'empty') {
+      wx.showToast({
+        title: '该时段暂无预约',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 展示详情弹窗
+    this.setData({
+      activeBooking: slot.booking,
+      showDetailModal: true
+    });
+  },
+
+  // 6. 关闭详情弹窗
+  closeDetailModal() {
+    this.setData({
+      showDetailModal: false,
+      activeBooking: null
+    });
+  },
+
+  // 阻止弹窗内冒泡，防止点击弹窗内部导致关闭
+  onModalInnerClick() {},
+
+  // 7. 医生拨打家长电话
   onCallPatient(e) {
     const phone = e.currentTarget.dataset.phone;
     const name = e.currentTarget.dataset.name;
@@ -131,7 +210,7 @@ Page({
           wx.makePhoneCall({
             phoneNumber: phone,
             fail: (err) => {
-              console.warn('拨打电话失败:', err);
+              console.warn('呼叫失败:', err);
             }
           });
         }
@@ -139,7 +218,7 @@ Page({
     });
   },
 
-  // 5. 退出工作站
+  // 8. 退出登录
   onLogout() {
     wx.showModal({
       title: '提示',

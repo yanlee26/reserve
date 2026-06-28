@@ -40,7 +40,7 @@
 
   <!-- 预约数量摘要 -->
   <view class="summary-bar" wx:if="{{!loading}}">
-    <text class="summary-text">本日共有 <text class="highlight">{{bookings.length}}</text> 个推拿预约</text>
+    <text class="summary-text">本日共有 <text class="highlight">{{bookings.length}}</text> 个预约记录</text>
   </view>
 
   <!-- 加载状态 -->
@@ -49,63 +49,102 @@
     <text class="loading-text">正在加载预约数据...</text>
   </view>
 
-  <!-- 预约单列表 -->
-  <view class="booking-list" wx:else>
-    <block wx:if="{{bookings.length > 0}}">
-      <view 
-        class="booking-card card animate-fade-in" 
-        wx:for="{{bookings}}" 
-        wx:key="id"
-      >
-        <!-- 卡片头部：预约时段与状态 -->
-        <view class="card-header flex justify-between items-center">
-          <view class="appoint-time {{item.status === 'cancelled' ? 'cancelled' : ''}}">
-            ⏰ 预约时段: {{item.time}}
-          </view>
-          <view class="status-tag {{item.status === 'pending' ? 'status-pending' : 'status-cancelled'}}">
-            {{item.status === 'pending' ? '待服务' : '已取消'}}
-          </view>
+  <!-- 时间段日程网格 (简化三色网格) -->
+  <view class="booking-grid-container" wx:else>
+    
+    <!-- 上午时段 -->
+    <view class="grid-section card">
+      <view class="section-title-row" style="margin-bottom: 24rpx;">
+        <text class="section-title">🌅 上午时段 (08:00 - 12:00)</text>
+      </view>
+      <view class="time-grid">
+        <view 
+          class="grid-pill {{item.state}}" 
+          wx:for="{{morningSlots}}" 
+          wx:key="time"
+          bindtap="onSlotClick"
+          data-slot="{{item}}"
+        >
+          <text class="grid-time">{{item.time}}</text>
+          <text class="grid-state-label">{{item.state === 'empty' ? '空闲' : (item.state === 'pending' ? '已约' : '取消')}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 下午时段 -->
+    <view class="grid-section card" style="margin-top: 28rpx;">
+      <view class="section-title-row" style="margin-bottom: 24rpx;">
+        <text class="section-title">🌇 下午时段 (13:00 - 17:00)</text>
+      </view>
+      <view class="time-grid">
+        <view 
+          class="grid-pill {{item.state}}" 
+          wx:for="{{afternoonSlots}}" 
+          wx:key="time"
+          bindtap="onSlotClick"
+          data-slot="{{item}}"
+        >
+          <text class="grid-time">{{item.time}}</text>
+          <text class="grid-state-label">{{item.state === 'empty' ? '空闲' : (item.state === 'pending' ? '已约' : '取消')}}</text>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <!-- 预约详情弹窗 (Modal) -->
+  <view class="detail-modal-mask flex items-center justify-center animate-fade-in" wx:if="{{showDetailModal}}" bindtap="closeDetailModal">
+    <view class="detail-modal card glass animate-scale-up" catchtap="onModalInnerClick">
+      
+      <view class="modal-header flex justify-between items-center">
+        <text class="modal-title">⏰ 预约详情 ({{activeBooking.time}})</text>
+        <text class="modal-close" bindtap="closeDetailModal">✕</text>
+      </view>
+
+      <view class="modal-body">
+        <!-- 状态标签 -->
+        <view class="modal-status-row flex items-center">
+          <text class="status-dot {{activeBooking.status === 'pending' ? 'dot-pending' : 'dot-cancelled'}}"></text>
+          <text class="status-name {{activeBooking.status === 'pending' ? 'text-pending' : 'text-cancelled'}}">
+            {{activeBooking.status === 'pending' ? '待服务 (已预约)' : '已取消'}}
+          </text>
         </view>
 
-        <!-- 卡片中部：预约患儿及诊断详情 -->
-        <view class="card-body">
-          <view class="info-row">
-            <text class="info-label">患儿姓名：</text>
-            <text class="info-val font-bold">{{item.patientName}}</text>
+        <!-- 信息明细 -->
+        <view class="modal-info-grid">
+          <view class="modal-info-item">
+            <text class="modal-info-label">患儿姓名：</text>
+            <text class="modal-info-val font-bold">{{activeBooking.patientName}}</text>
           </view>
           
-          <view class="info-row">
-            <text class="info-label">就诊单号：</text>
-            <text class="info-val code-font">{{item.diagnosisId}}</text>
+          <view class="modal-info-item">
+            <text class="modal-info-label">就诊单号：</text>
+            <text class="modal-info-val code-font">{{activeBooking.diagnosisId}}</text>
           </view>
 
-          <view class="info-row phone-row" bindtap="onCallPatient" data-phone="{{item.patientPhone}}" data-name="{{item.patientName}}">
-            <text class="info-label">联系电话：</text>
-            <text class="info-val phone-val">{{item.patientPhone}} 📞</text>
+          <view class="modal-info-item phone-call-item" bindtap="onCallPatient" data-phone="{{activeBooking.patientPhone}}" data-name="{{activeBooking.patientName}}">
+            <text class="modal-info-label">联系电话：</text>
+            <text class="modal-info-val phone-val">{{activeBooking.patientPhone}} 📞</text>
           </view>
 
-          <view class="info-row" wx:if="{{item.remarks}}">
-            <text class="info-label">备注要求：</text>
-            <text class="info-val">{{item.remarks}}</text>
+          <view class="modal-info-item" wx:if="{{activeBooking.remarks}}">
+            <text class="modal-info-label">备注要求：</text>
+            <text class="modal-info-val">{{activeBooking.remarks}}</text>
           </view>
         </view>
 
-        <!-- 卡片尾部：取消原因 (若已取消) -->
-        <view class="cancel-reason-box" wx:if="{{item.status === 'cancelled' && item.cancelReason}}">
+        <!-- 取消原因 (若已取消) -->
+        <view class="cancel-reason-box" style="margin: 10rpx 0 0 0;" wx:if="{{activeBooking.status === 'cancelled' && activeBooking.cancelReason}}">
           <text class="reason-title">取消原因：</text>
-          <text class="reason-content">{{item.cancelReason}}</text>
+          <text class="reason-content">{{activeBooking.cancelReason}}</text>
         </view>
       </view>
-    </block>
 
-    <!-- 空状态 -->
-    <block wx:else>
-      <view class="empty-state-box card flex flex-col items-center justify-center">
-        <text class="empty-emoji">📅</text>
-        <text class="empty-title">该日期暂无预约</text>
-        <text class="empty-subtitle">本日没有家长登记预约推拿服务。</text>
+      <view class="modal-footer">
+        <button class="btn btn-primary close-modal-btn" bindtap="closeDetailModal">我知道了</button>
       </view>
-    </block>
+
+    </view>
   </view>
 
 </view>
