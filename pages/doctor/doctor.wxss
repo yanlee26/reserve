@@ -96,6 +96,7 @@
   border: 2rpx solid var(--border-color);
   box-sizing: border-box;
   transition: all 0.2s;
+  margin-top: 1rpx;
 }
 
 .date-pill.active {

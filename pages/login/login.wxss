@@ -167,3 +167,43 @@
   height: 96rpx;
   border-radius: var(--radius-full);
 }
+
+.verify-code-row {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.verify-input {
+  flex: 1;
+}
+
+.send-code-btn {
+  width: 220rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  text-align: center;
+  border-radius: var(--radius-md);
+  color: var(--primary);
+  background-color: var(--primary-light);
+  border: 2rpx solid rgba(13, 148, 136, 0.2);
+  padding: 0rpx;
+  margin: 0rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 10rpx rgba(13, 148, 136, 0.05);
+}
+
+.send-code-btn::after {
+  border: none;
+}
+
+.send-code-btn.disabled {
+  color: var(--text-light) !important;
+  background-color: var(--bg-main) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: none;
+}
