@@ -10,12 +10,18 @@ Page({
     sentCode: '', // 存储发出的开发调试验证码（若走真实短信通道则为空）
     isPhoneValid: false,
     countdown: 0,
-    isFormValid: false
+    isFormValid: false,
+    enableSmsLogin: false // 短信开关，默认从 env.js 获取
   },
 
   timer: null,
 
   onLoad() {
+    // 读取本地的环境变量短信开关
+    this.setData({
+      enableSmsLogin: env.ENABLE_SMS_LOGIN || false
+    });
+
     // 如果已经登录，根据角色重定向到对应主页
     const isLogin = wx.getStorageSync('IS_LOGGED_IN');
     if (isLogin) {
@@ -80,7 +86,7 @@ Page({
     });
   },
 
-  // 1. 调用云函数获取短信验证码 (真实短信或降级调试模式)
+  // 1. 调用云函数获取短信验证码 (仅在开启短信验证且通过手机正则时可用)
   onSendVerifyCode() {
     if (!this.data.isPhoneValid || this.data.countdown > 0) return;
 
@@ -174,11 +180,19 @@ Page({
 
   // 表单完整度校验
   validateForm() {
-    const { codeValue, phone, verifyCode, sentCode, isPhoneValid } = this.data;
+    const { codeValue, phone, verifyCode, sentCode, isPhoneValid, enableSmsLogin } = this.data;
     
     // 1. 就诊单号/工号必须填写
     const isCodeOk = codeValue.trim().length > 0;
     
+    // 如果未开启手机验证码登录，单号填写完毕即可直接点亮登录按钮
+    if (!enableSmsLogin) {
+      this.setData({
+        isFormValid: isCodeOk
+      });
+      return;
+    }
+
     // 2. 手机号码格式必须正确
     const isPhoneOk = isPhoneValid && phone.length === 11;
     
@@ -196,9 +210,71 @@ Page({
   onWechatLogin() {
     if (!this.data.isFormValid) return;
 
-    const { role, codeValue, phone, verifyCode } = this.data;
+    const { role, codeValue, phone, verifyCode, enableSmsLogin } = this.data;
     const code = codeValue.toUpperCase();
 
+    // 如果没有开启手机号短信验证开关，直接前端验证单号登录 (保持原有纯单号登录行为)
+    if (!enableSmsLogin) {
+      if (role === 'parent') {
+        if (code !== 'TCM-999' && !code.startsWith('TCM-')) {
+          wx.showModal({
+            title: '验证失败',
+            content: '未查询到该就诊诊断单，请确认单号输入是否正确。\n（提示：测试单号为 TCM-999）',
+            showCancel: false,
+            confirmColor: '#0d9488'
+          });
+          return;
+        }
+      } else {
+        if (code !== 'DOC-888' && !code.startsWith('DOC-')) {
+          wx.showModal({
+            title: '验证失败',
+            content: '医生工号验证未通过，请确认输入是否正确。\n（提示：测试工号为 DOC-888）',
+            showCancel: false,
+            confirmColor: '#0d9488'
+          });
+          return;
+        }
+      }
+
+      wx.showLoading({
+        title: '正在安全登录',
+        mask: true
+      });
+
+      setTimeout(() => {
+        wx.hideLoading();
+        // 存储本地登录态及参数
+        wx.setStorageSync('IS_LOGGED_IN', true);
+        wx.setStorageSync('ROLE', role);
+        if (role === 'parent') {
+          wx.setStorageSync('DIAGNOSIS_ID', code);
+        } else {
+          wx.setStorageSync('DOCTOR_ID', code);
+        }
+
+        wx.showToast({
+          title: '验证成功',
+          icon: 'success',
+          duration: 1200
+        });
+
+        setTimeout(() => {
+          if (role === 'doctor') {
+            wx.redirectTo({
+              url: '/pages/doctor/doctor'
+            });
+          } else {
+            wx.redirectTo({
+              url: '/pages/index/index'
+            });
+          }
+        }, 1200);
+      }, 1000);
+      return;
+    }
+
+    // 开启手机短信验证后的安全云端登录流程
     wx.showLoading({
       title: '正在安全登录',
       mask: true

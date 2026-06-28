@@ -55,7 +55,7 @@
       </view>
 
       <!-- 手机号码输入框 -->
-      <view class="input-item" style="margin-top: 30rpx;">
+      <view class="input-item" style="margin-top: 30rpx;" wx:if="{{enableSmsLogin}}">
         <text class="label">绑定手机号码</text>
         <input 
           class="login-input" 
@@ -69,7 +69,7 @@
       </view>
 
       <!-- 验证码输入框 -->
-      <view class="input-item" style="margin-top: 30rpx;">
+      <view class="input-item" style="margin-top: 30rpx;" wx:if="{{enableSmsLogin}}">
         <text class="label">短信验证码</text>
         <view class="verify-code-row">
           <input 

@@ -4,5 +4,7 @@ module.exports = {
   // 订阅消息模板 ID (可在微信公众平台-订阅消息中申请模板后配置于此)
   REMINDER_TEMPLATE_ID: '',
   // 短信验证码模版 ID (可在云开发控制台短信服务中开通签名及模版后配置于此)
-  SMS_TEMPLATE_ID: ''
+  SMS_TEMPLATE_ID: '',
+  // 是否开启手机号 + 短信验证码验证登录 (默认关闭)
+  ENABLE_SMS_LOGIN: false
 };
