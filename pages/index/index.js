@@ -16,6 +16,12 @@ Page({
         url: '/pages/login/login'
       });
     }
+
+    // 显式启用“分享给朋友”和“分享到朋友圈”按钮
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
   },
 
   onShow() {
