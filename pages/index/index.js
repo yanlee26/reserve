@@ -15,6 +15,16 @@ Page({
       wx.redirectTo({
         url: '/pages/login/login'
       });
+      return;
+    }
+
+    // 角色安全守卫：若是医生，重定向至医生端工作站
+    const role = wx.getStorageSync('ROLE') || 'parent';
+    if (role === 'doctor') {
+      wx.redirectTo({
+        url: '/pages/doctor/doctor'
+      });
+      return;
     }
 
     // 显式启用“分享给朋友”和“分享到朋友圈”按钮

@@ -1,0 +1,293 @@
+/* pages/doctor/doctor.wxss */
+
+.page-doctor {
+  padding: 28rpx 28rpx 60rpx 28rpx;
+  background-color: var(--bg-main);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 顶部医生管理卡 */
+.header-card {
+  margin: 0 0 28rpx 0;
+  padding: 30rpx 36rpx;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(204, 251, 241, 0.3) 100%);
+  border: 2rpx solid rgba(13, 148, 136, 0.1);
+}
+
+.hosp-name {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.dept-name {
+  font-size: 36rpx;
+  font-weight: 800;
+  margin-top: 6rpx;
+  display: inline-block;
+}
+
+.doctor-info {
+  font-size: 22rpx;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 8rpx;
+}
+
+.logout-btn-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10rpx 20rpx;
+  border-radius: 12rpx;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 2rpx solid rgba(239, 68, 68, 0.1);
+  transition: background-color 0.2s;
+}
+
+.logout-btn-box:active {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.logout-icon {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.logout-text {
+  font-size: 20rpx;
+  color: #ef4444;
+  font-weight: 700;
+  margin-top: 4rpx;
+}
+
+/* 15天日期横滑选择器 */
+.calendar-section {
+  padding: 32rpx 24rpx;
+  margin-bottom: 28rpx;
+}
+
+.active-date-desc {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--primary);
+  background-color: var(--primary-light);
+  padding: 4rpx 16rpx;
+  border-radius: var(--radius-full);
+}
+
+.date-scroll {
+  white-space: nowrap;
+  width: 100%;
+}
+
+.date-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 110rpx;
+  height: 130rpx;
+  margin-right: 16rpx;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-main);
+  border: 2rpx solid var(--border-color);
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.date-pill.active {
+  background-color: #ffffff;
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 4rpx 14rpx rgba(13, 148, 136, 0.18);
+  transform: translateY(-2rpx);
+}
+
+.day-name {
+  font-size: 20rpx;
+  color: var(--text-light);
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
+.date-pill.active .day-name {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.date-num {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.date-pill.active .date-num {
+  color: var(--primary);
+}
+
+/* 摘要条 */
+.summary-bar {
+  margin: 10rpx 6rpx 20rpx 6rpx;
+}
+
+.summary-text {
+  font-size: 26rpx;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.summary-text .highlight {
+  color: var(--primary);
+  font-size: 32rpx;
+  font-weight: 800;
+  margin: 0 4rpx;
+}
+
+/* 医生卡片列表 */
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.booking-card {
+  padding: 0rpx; /* 去除内边距，完全通过内外边框分隔 */
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  padding: 24rpx 32rpx;
+  border-bottom: 2rpx solid var(--border-color);
+}
+
+.appoint-time {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.appoint-time.cancelled {
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.card-body {
+  padding: 28rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+.info-label {
+  color: var(--text-muted);
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.info-val {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.code-font {
+  font-family: monospace, Courier, sans-serif;
+  font-weight: 700;
+}
+
+.phone-row {
+  cursor: pointer;
+}
+
+.phone-row:active {
+  opacity: 0.7;
+}
+
+.phone-val {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* 取消原因警示框 */
+.cancel-reason-box {
+  margin: 0 32rpx 28rpx 32rpx;
+  padding: 18rpx 24rpx;
+  background-color: #fef2f2;
+  border-left: 6rpx solid #ef4444;
+  border-radius: 0 8rpx 8rpx 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.reason-title {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.reason-content {
+  font-size: 24rpx;
+  color: #b91c1c;
+  line-height: 1.5;
+}
+
+/* 空状态 */
+.empty-state-box {
+  padding: 80rpx 40rpx;
+  background-color: #ffffff;
+}
+
+.empty-emoji {
+  font-size: 90rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-title {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 12rpx;
+}
+
+.empty-subtitle {
+  font-size: 24rpx;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* 加载状态 */
+.loading-box {
+  padding: 100rpx 40rpx;
+}
+
+.spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20rpx;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 24rpx;
+  color: var(--text-light);
+}

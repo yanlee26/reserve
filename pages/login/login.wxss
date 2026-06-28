@@ -77,6 +77,48 @@
   line-height: 1.6;
 }
 
+/* 角色选择切换 */
+.role-switch-container {
+  display: flex;
+  background-color: var(--bg-main);
+  border-radius: var(--radius-full);
+  padding: 8rpx;
+  margin-bottom: 40rpx;
+  border: 2rpx solid var(--border-color);
+}
+
+.role-tab {
+  flex: 1;
+  text-align: center;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-sub);
+  padding: 16rpx 0;
+  border-radius: var(--radius-full);
+  transition: all 0.2s ease-in-out;
+}
+
+.role-tab.active {
+  background-color: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 4rpx 12rpx rgba(13, 148, 136, 0.15);
+  font-weight: 700;
+}
+
+/* 医生工作站须知 */
+.notice-doctor {
+  background-color: #ecfdf5;
+  border-color: #d1fae5;
+}
+
+.notice-doctor .notice-title {
+  color: #047857;
+}
+
+.notice-doctor .notice-text {
+  color: #059669;
+}
+
 /* 输入表单 */
 .form-area {
   margin-bottom: 60rpx;

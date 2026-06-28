@@ -153,6 +153,29 @@ function getOccupiedSlots() {
   });
 }
 
+// 8. 获取指定日期的所有预约单 (医生端使用)
+function getAllBookingsByDate(date) {
+  return new Promise((resolve, reject) => {
+    wx.cloud.callFunction({
+      name: 'bookingService',
+      data: {
+        action: 'getAllBookingsByDate',
+        data: { date }
+      },
+      success: res => {
+        if (res.result && res.result.success) {
+          resolve(res.result.data || []);
+        } else {
+          reject(res.result || { errMsg: '获取预约列表失败' });
+        }
+      },
+      fail: err => {
+        reject(err);
+      }
+    });
+  });
+}
+
 module.exports = {
   initData,
   getBookings,
@@ -160,5 +183,6 @@ module.exports = {
   addBooking,
   updateBooking,
   cancelBooking,
-  getOccupiedSlots
+  getOccupiedSlots,
+  getAllBookingsByDate
 };

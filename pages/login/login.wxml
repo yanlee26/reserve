@@ -8,24 +8,50 @@
       <view class="sub-name">少儿推拿预约中心</view>
     </view>
 
-    <!-- 说明须知 -->
-    <view class="notice-box">
+    <!-- 角色选择切换 -->
+    <view class="role-switch-container">
+      <view class="role-tab {{role === 'parent' ? 'active' : ''}}" bindtap="onChangeRole" data-role="parent">我是家长</view>
+      <view class="role-tab {{role === 'doctor' ? 'active' : ''}}" bindtap="onChangeRole" data-role="doctor">我是医生</view>
+    </view>
+
+    <!-- 说明须知 (仅对家长展示) -->
+    <view class="notice-box" wx:if="{{role === 'parent'}}">
       <text class="notice-title">⚠️ 就诊预约前须知</text>
       <text class="notice-text">根据本院儿童保健科规定：只有经过医生线下诊断，持有医生诊断/处方单的患儿，方能进入系统预约推拿疗程。</text>
     </view>
 
+    <!-- 说明须知 (仅对医生展示) -->
+    <view class="notice-box notice-doctor" wx:if="{{role === 'doctor'}}">
+      <text class="notice-title">👨‍⚕️ 医生工作站须知</text>
+      <text class="notice-text">请输入您的验证工号进行登录。医生端仅支持查询各时段患者明细，不支持创建、修改或取消预约操作。</text>
+    </view>
+
     <!-- 表单输入区域 -->
     <view class="form-area">
-      <view class="input-item">
+      <!-- 家长输入框 -->
+      <view class="input-item" wx:if="{{role === 'parent'}}">
         <text class="label">医生诊断单号</text>
         <input 
           class="login-input" 
           placeholder="请输入就诊单上的诊断单号" 
-          value="{{diagnosisId}}" 
-          bindinput="onInputDiagnosisId"
+          value="{{codeValue}}" 
+          bindinput="onInputCode"
           placeholder-class="placeholder"
         />
         <text class="test-tip">（测试可用单号: TCM-999）</text>
+      </view>
+
+      <!-- 医生输入框 -->
+      <view class="input-item" wx:if="{{role === 'doctor'}}">
+        <text class="label">医生验证工号</text>
+        <input 
+          class="login-input" 
+          placeholder="请输入您的医生工号" 
+          value="{{codeValue}}" 
+          bindinput="onInputCode"
+          placeholder-class="placeholder"
+        />
+        <text class="test-tip">（测试可用工号: DOC-888）</text>
       </view>
     </view>
 

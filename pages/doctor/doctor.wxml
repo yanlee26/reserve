@@ -1,0 +1,111 @@
+<!--pages/doctor/doctor.wxml-->
+<view class="container page-doctor animate-fade-in">
+  
+  <!-- 顶部医生品牌与管理卡 -->
+  <view class="header-card card glass flex justify-between items-center">
+    <view class="brand-info">
+      <view class="hosp-name">上海市浦东新区中医医院</view>
+      <view class="dept-name gradient-text">少儿推拿中心・医生端</view>
+      <view class="doctor-info" wx:if="{{doctorId}}">工号: {{doctorId}}</view>
+    </view>
+    <view class="logout-btn-box" bindtap="onLogout">
+      <text class="logout-icon">🚪</text>
+      <text class="logout-text">退出</text>
+    </view>
+  </view>
+
+  <!-- 15天日期选择器 -->
+  <view class="calendar-section card">
+    <view class="section-title-row" style="margin-bottom: 24rpx; justify-content: space-between; display: flex; align-items: center;">
+      <text class="section-title">查看日期预约</text>
+      <text class="active-date-desc" wx:if="{{selectedDateStr}}">{{selectedDateStr}}</text>
+    </view>
+    
+    <scroll-view class="date-scroll" scroll-x scroll-with-animation scroll-into-view="date-{{selectedDateShort}}">
+      <view 
+        wx:for="{{dateList}}" 
+        wx:key="date" 
+        id="date-{{item.dateShort}}"
+        class="date-pill {{selectedDate === item.date ? 'active' : ''}}"
+        bindtap="onSelectDate"
+        data-date="{{item.date}}"
+        data-short="{{item.dateShort}}"
+        data-str="{{item.dateStr}}"
+      >
+        <text class="day-name">{{item.dayName}}</text>
+        <text class="date-num">{{item.dateShort}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 预约数量摘要 -->
+  <view class="summary-bar" wx:if="{{!loading}}">
+    <text class="summary-text">本日共有 <text class="highlight">{{bookings.length}}</text> 个推拿预约</text>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-box flex flex-col items-center justify-center" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text class="loading-text">正在加载预约数据...</text>
+  </view>
+
+  <!-- 预约单列表 -->
+  <view class="booking-list" wx:else>
+    <block wx:if="{{bookings.length > 0}}">
+      <view 
+        class="booking-card card animate-fade-in" 
+        wx:for="{{bookings}}" 
+        wx:key="id"
+      >
+        <!-- 卡片头部：预约时段与状态 -->
+        <view class="card-header flex justify-between items-center">
+          <view class="appoint-time {{item.status === 'cancelled' ? 'cancelled' : ''}}">
+            ⏰ 预约时段: {{item.time}}
+          </view>
+          <view class="status-tag {{item.status === 'pending' ? 'status-pending' : 'status-cancelled'}}">
+            {{item.status === 'pending' ? '待服务' : '已取消'}}
+          </view>
+        </view>
+
+        <!-- 卡片中部：预约患儿及诊断详情 -->
+        <view class="card-body">
+          <view class="info-row">
+            <text class="info-label">患儿姓名：</text>
+            <text class="info-val font-bold">{{item.patientName}}</text>
+          </view>
+          
+          <view class="info-row">
+            <text class="info-label">就诊单号：</text>
+            <text class="info-val code-font">{{item.diagnosisId}}</text>
+          </view>
+
+          <view class="info-row phone-row" bindtap="onCallPatient" data-phone="{{item.patientPhone}}" data-name="{{item.patientName}}">
+            <text class="info-label">联系电话：</text>
+            <text class="info-val phone-val">{{item.patientPhone}} 📞</text>
+          </view>
+
+          <view class="info-row" wx:if="{{item.remarks}}">
+            <text class="info-label">备注要求：</text>
+            <text class="info-val">{{item.remarks}}</text>
+          </view>
+        </view>
+
+        <!-- 卡片尾部：取消原因 (若已取消) -->
+        <view class="cancel-reason-box" wx:if="{{item.status === 'cancelled' && item.cancelReason}}">
+          <text class="reason-title">取消原因：</text>
+          <text class="reason-content">{{item.cancelReason}}</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <block wx:else>
+      <view class="empty-state-box card flex flex-col items-center justify-center">
+        <text class="empty-emoji">📅</text>
+        <text class="empty-title">该日期暂无预约</text>
+        <text class="empty-subtitle">本日没有家长登记预约推拿服务。</text>
+      </view>
+    </block>
+  </view>
+
+</view>

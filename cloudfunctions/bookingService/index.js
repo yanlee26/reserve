@@ -29,6 +29,8 @@ exports.main = async (event, context) => {
         return await cancelBooking(data);
       case 'getOccupiedSlots':
         return await getOccupiedSlots();
+      case 'getAllBookingsByDate':
+        return await getAllBookingsByDate(data);
       default:
         return {
           success: false,
@@ -235,6 +237,32 @@ async function getOccupiedSlots() {
       date: item.date,
       time: item.time
     }))
+  };
+}
+
+// 8. 获取指定日期的所有预约单 (用于医生视图)
+async function getAllBookingsByDate({ date }) {
+  const res = await db.collection(COLLECTION_NAME)
+    .where({
+      date: date
+    })
+    .limit(1000)
+    .get();
+
+  const bookings = res.data.map(item => {
+    return {
+      ...item,
+      id: item._id,
+      createdAt: formatDate(item.createdAt)
+    };
+  });
+
+  // 按照预约时间升序排列 (例如 08:00, 08:20, 08:40...)
+  bookings.sort((a, b) => a.time.localeCompare(b.time));
+
+  return {
+    success: true,
+    data: bookings
   };
 }
 
