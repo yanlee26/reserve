@@ -260,9 +260,9 @@
 }
 
 .policy-modal {
-  width: 90%;
-  max-width: 650rpx;
-  max-height: 80vh;
+  width: 92%;
+  max-width: 680rpx;
+  max-height: 85vh;
   background-color: #ffffff;
   padding: 0rpx;
   overflow: hidden;
@@ -273,8 +273,8 @@
 
 .policy-body {
   flex: 1;
-  padding: 36rpx;
-  max-height: 55vh; /* 确保内容可滚动 */
+  padding: 40rpx 40rpx 20rpx 40rpx;
+  max-height: 60vh; /* 调大高度，方便阅读更多文字 */
   box-sizing: border-box;
 }
 
@@ -283,6 +283,14 @@
   color: var(--text-sub);
   line-height: 1.8;
   white-space: pre-wrap; /* 换行保留 */
+  padding-right: 20rpx; /* 在文字和滚动条之间增加呼吸感间距，防止贴边 */
+  display: block;
+}
+
+.modal-footer {
+  padding: 28rpx 36rpx;
+  border-top: 2rpx solid var(--border-color);
+  background-color: var(--bg-main);
 }
 
 .agree-modal-btn {
