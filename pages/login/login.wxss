@@ -207,3 +207,78 @@
   border-color: var(--border-color) !important;
   box-shadow: none;
 }
+
+/* 协议勾选行 */
+.agreement-row {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 36rpx;
+  margin-bottom: 24rpx;
+  padding: 0 10rpx;
+}
+
+.agreement-checkbox {
+  transform: scale(0.75);
+  margin-top: -4rpx;
+  margin-right: 6rpx;
+}
+
+.agreement-text {
+  font-size: 22rpx;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.agreement-link {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+  display: inline;
+}
+
+/* 协议详情弹窗 */
+.policy-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1100; /* 高于短信验证码弹窗 */
+  backdrop-filter: blur(15rpx);
+}
+
+.policy-modal {
+  width: 90%;
+  max-width: 650rpx;
+  max-height: 80vh;
+  background-color: #ffffff;
+  padding: 0rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24rpx 60rpx rgba(0, 0, 0, 0.2);
+}
+
+.policy-body {
+  flex: 1;
+  padding: 36rpx;
+  max-height: 55vh; /* 确保内容可滚动 */
+  box-sizing: border-box;
+}
+
+.policy-content {
+  font-size: 24rpx;
+  color: var(--text-sub);
+  line-height: 1.8;
+  white-space: pre-wrap; /* 换行保留 */
+}
+
+.agree-modal-btn {
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: var(--radius-full);
+  font-size: 26rpx;
+  font-weight: 700;
+  width: 100%;
+}

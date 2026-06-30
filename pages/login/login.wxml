@@ -92,6 +92,19 @@
       </view>
     </view>
 
+    <!-- 用户服务协议与隐私条款同意框 -->
+    <view class="agreement-row flex items-center">
+      <checkbox-group bindchange="onAgreementChange">
+        <checkbox class="agreement-checkbox" value="agree" checked="{{isAgreed}}" color="#0d9488" />
+      </checkbox-group>
+      <text class="agreement-text">
+        我已阅读并同意
+        <text class="agreement-link" catchtap="viewServiceAgreement">《用户服务协议》</text>
+        与
+        <text class="agreement-link" catchtap="viewPrivacyPolicy">《隐私政策》</text>
+      </text>
+    </view>
+
     <!-- 登录按钮 -->
     <view class="action-area">
       <button 
@@ -101,6 +114,26 @@
       >
         微信授权登录
       </button>
+    </view>
+  </view>
+
+  <!-- 用户协议/隐私条款详情弹窗 -->
+  <view class="policy-modal-mask flex items-center justify-center animate-fade-in" wx:if="{{showPolicyModal}}" bindtap="closePolicyModal">
+    <view class="policy-modal card glass animate-scale-up" catchtap="onModalInnerClick">
+      
+      <view class="modal-header flex justify-between items-center">
+        <text class="modal-title">{{policyTitle}}</text>
+        <text class="modal-close" bindtap="closePolicyModal">✕</text>
+      </view>
+
+      <scroll-view class="policy-body" scroll-y>
+        <text class="policy-content" user-select>{{policyContent}}</text>
+      </scroll-view>
+
+      <view class="modal-footer">
+        <button class="btn btn-primary agree-modal-btn" bindtap="agreeAndClosePolicy">已阅读并同意本协议</button>
+      </view>
+
     </view>
   </view>
 </view>
