@@ -212,10 +212,12 @@
 .agreement-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   margin-top: 36rpx;
   margin-bottom: 24rpx;
   width: 100%;
+  padding-left: 6rpx;
+  box-sizing: border-box;
 }
 
 .agreement-checkbox-group {
