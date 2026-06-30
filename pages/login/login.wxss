@@ -211,22 +211,25 @@
 /* 协议勾选行 */
 .agreement-row {
   display: flex;
-  align-items: flex-start;
-  margin-top: 36rpx;
-  margin-bottom: 24rpx;
-  padding: 0 10rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30rpx;
+  margin-bottom: 20rpx;
+  padding: 0;
+  width: 100%;
 }
 
 .agreement-checkbox {
-  transform: scale(0.75);
-  margin-top: -4rpx;
-  margin-right: 6rpx;
+  transform: scale(0.6);
+  margin-right: -4rpx; /* 进一步拉近复选框与文字距离 */
 }
 
 .agreement-text {
-  font-size: 22rpx;
+  font-size: 19rpx;
   color: var(--text-light);
-  line-height: 1.6;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .agreement-link {
