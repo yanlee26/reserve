@@ -269,35 +269,58 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 24rpx 60rpx rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-lg);
+}
+
+.policy-modal .modal-header {
+  padding: 40rpx 48rpx 30rpx 48rpx;
+  border-bottom: 2rpx solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.policy-modal .modal-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.policy-modal .modal-close {
+  font-size: 38rpx;
+  color: var(--text-muted);
+  padding: 10rpx;
 }
 
 .policy-body {
   flex: 1;
-  padding: 40rpx 40rpx 20rpx 40rpx;
-  max-height: 60vh; /* 调大高度，方便阅读更多文字 */
+  max-height: 60vh;
   box-sizing: border-box;
+  padding: 0rpx; /* 去除外层 body padding，使滚动条能贴在卡片边缘，避免局促感 */
 }
 
 .policy-content {
+  display: block;
   font-size: 24rpx;
   color: var(--text-sub);
   line-height: 1.8;
-  white-space: pre-wrap; /* 换行保留 */
-  padding-right: 20rpx; /* 在文字和滚动条之间增加呼吸感间距，防止贴边 */
-  display: block;
+  white-space: pre-wrap;
+  padding: 30rpx 48rpx 40rpx 48rpx; /* 将内边距放在内部，左右 48rpx 的宽裕边距非常大气 */
+  box-sizing: border-box;
 }
 
-.modal-footer {
-  padding: 28rpx 36rpx;
+.policy-modal .modal-footer {
+  padding: 36rpx 48rpx; /* 增加底部确定按钮的呼吸间距 */
   border-top: 2rpx solid var(--border-color);
   background-color: var(--bg-main);
+  box-sizing: border-box;
 }
 
 .agree-modal-btn {
-  height: 80rpx;
-  line-height: 80rpx;
+  height: 88rpx;
+  line-height: 88rpx;
   border-radius: var(--radius-full);
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 700;
   width: 100%;
 }
