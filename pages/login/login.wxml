@@ -93,16 +93,13 @@
     </view>
 
     <!-- 用户服务协议与隐私条款同意框 -->
-    <view class="agreement-row flex items-center">
-      <checkbox-group bindchange="onAgreementChange">
+    <view class="agreement-row">
+      <checkbox-group bindchange="onAgreementChange" class="agreement-checkbox-group">
         <checkbox class="agreement-checkbox" value="agree" checked="{{isAgreed}}" color="#0d9488" />
       </checkbox-group>
-      <text class="agreement-text">
-        我已阅读并同意
-        <text class="agreement-link" catchtap="viewServiceAgreement">《用户服务协议》</text>
-        与
-        <text class="agreement-link" catchtap="viewPrivacyPolicy">《隐私政策》</text>
-      </text>
+      <view class="agreement-text-box">
+        我已阅读并同意<text class="agreement-link" catchtap="viewServiceAgreement">《用户服务协议》</text>与<text class="agreement-link" catchtap="viewPrivacyPolicy">《隐私政策》</text>
+      </view>
     </view>
 
     <!-- 登录按钮 -->
