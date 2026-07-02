@@ -39,6 +39,21 @@ Page({
   },
 
   onLoad(options) {
+    // 检查登录态，防止未登录用户打开页面出错
+    const isLoggedIn = wx.getStorageSync('IS_LOGGED_IN');
+    if (!isLoggedIn) {
+      wx.redirectTo({
+        url: '/pages/login/login'
+      });
+      return;
+    }
+
+    // 显式启用“分享给朋友”和“分享到朋友圈”按钮
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
+
     this.initDatePicker();
 
     // 先拉取已被占用的时段，再处理回填或生成网格
@@ -382,5 +397,19 @@ Page({
         showCancel: false
       });
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '浦东中医院少儿推拿服务预约',
+      path: '/pages/index/index'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '浦东新区中医医院少儿推拿中心预约',
+      query: ''
+    };
   }
 })

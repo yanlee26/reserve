@@ -32,6 +32,12 @@ Page({
       return;
     }
 
+    // 显式启用“分享给朋友”和“分享到朋友圈”按钮
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
+
     const docId = wx.getStorageSync('DOCTOR_ID') || 'DOC-888';
     this.setData({
       doctorId: docId
@@ -232,5 +238,19 @@ Page({
         }
       }
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '浦东中医院少儿推拿医生端工作站',
+      path: '/pages/index/index' // Point to entry so redirect check triggers login
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '浦东新区中医医院少儿推拿医生端工作站',
+      query: ''
+    };
   }
 })

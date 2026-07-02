@@ -65,6 +65,12 @@ Page({
   timer: null,
 
   onLoad() {
+    // 显式启用“分享给朋友”和“分享到朋友圈”按钮
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    });
+
     // 读取本地的环境变量短信开关
     this.setData({
       enableSmsLogin: env.ENABLE_SMS_LOGIN || false
@@ -465,5 +471,19 @@ Page({
         });
       }
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '浦东中医院少儿推拿服务预约',
+      path: '/pages/login/login'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '浦东新区中医医院少儿推拿中心预约',
+      query: ''
+    };
   }
 })
