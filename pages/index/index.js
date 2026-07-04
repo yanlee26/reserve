@@ -165,7 +165,7 @@ Page({
     };
   },
 
-  // 3. 点击消息推送测试按钮，唤起订阅授权并调用云开发函数下发推送
+  // 3. 点击消息推送测试按钮，先自动拉取该模板的具体字段定义并展示，再唤起订阅授权推送
   triggerTestPush() {
     const templateId = envConfig.REMINDER_TEMPLATE_ID;
     if (!templateId) {
@@ -177,6 +177,53 @@ Page({
       return;
     }
 
+    wx.showLoading({ title: '拉取模板定义中...' });
+    wx.cloud.callFunction({
+      name: 'bookingService',
+      data: {
+        action: 'getTemplateDetails'
+      },
+      success: (res) => {
+        wx.hideLoading();
+        console.log('获取微信模板列表结果:', res.result);
+
+        let modalContent = '';
+        if (res.result && res.result.success && res.result.data) {
+          const list = res.result.data;
+          const match = Array.isArray(list) ? list.find(t => t.priTmplId === templateId) : null;
+          if (match) {
+            modalContent = `模版名称: ${match.title}\n模版ID: ${match.priTmplId}\n模版内容与所需字段如下，请核对是否与后台匹配:\n\n${match.content}`;
+          } else {
+            modalContent = `未在您小程序的可用模板列表中匹配到当前配置的 ID。\n\n您的全部模板列表：\n${JSON.stringify(list, null, 2)}`;
+          }
+        } else {
+          modalContent = `获取模板详情失败：${(res.result && res.result.errMsg) || '未知错误'}\n直接进行推送测试。`;
+        }
+
+        wx.showModal({
+          title: '微信订阅模板信息',
+          content: modalContent,
+          confirmText: '去授权推送',
+          cancelText: '取消',
+          confirmColor: '#0d9488',
+          success: (modalRes) => {
+            if (modalRes.confirm) {
+              this.proceedWithPush(templateId);
+            }
+          }
+        });
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        console.error('拉取模板定义失败:', err);
+        // 网络失败则直接回退继续走推送
+        this.proceedWithPush(templateId);
+      }
+    });
+  },
+
+  // 4. 执行实际的订阅授权与推送动作
+  proceedWithPush(templateId) {
     wx.showLoading({ title: '唤起授权中...' });
     wx.requestSubscribeMessage({
       tmplIds: [templateId],

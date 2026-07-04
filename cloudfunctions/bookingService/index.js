@@ -37,6 +37,8 @@ exports.main = async (event, context) => {
         return await verifyLogin(data);
       case 'sendTestPush':
         return await sendTestPush(data);
+      case 'getTemplateDetails':
+        return await getTemplateDetails();
       default:
         return {
           success: false,
@@ -463,6 +465,24 @@ async function sendTestPush({ templateId }) {
     return {
       success: false,
       errMsg: err.message || '发送失败',
+      errCode: err.errCode
+    };
+  }
+}
+
+// 获取订阅消息模板列表以方便查询字段属性
+async function getTemplateDetails() {
+  try {
+    const res = await cloud.openapi.subscribeMessage.getTemplateList({});
+    return {
+      success: true,
+      data: res.list || res
+    };
+  } catch (err) {
+    console.error('获取模板列表失败:', err);
+    return {
+      success: false,
+      errMsg: err.message || '获取失败',
       errCode: err.errCode
     };
   }
