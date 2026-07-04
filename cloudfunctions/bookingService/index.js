@@ -35,6 +35,8 @@ exports.main = async (event, context) => {
         return await sendSmsCode(data);
       case 'verifyLogin':
         return await verifyLogin(data);
+      case 'sendTestPush':
+        return await sendTestPush(data);
       default:
         return {
           success: false,
@@ -427,3 +429,42 @@ async function verifyLogin({ role, codeValue, phone, verifyCode }) {
     msg: '登录校验通过'
   };
 }
+
+// 【即时测试推送调试动作】主动由用户点击触发，模拟发送就诊提醒，返回成功状态或报错信息
+async function sendTestPush({ templateId }) {
+  const openid = cloud.getWXContext().OPENID;
+  if (!openid) {
+    return { success: false, errMsg: '获取 openid 失败' };
+  }
+
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+
+    console.log(`[调试推送] 正在向 openid: ${openid} 发送测试订阅消息...`);
+    await cloud.openapi.subscribeMessage.send({
+      touser: openid,
+      templateId: templateId || 'QOS0o9srkEjZ1VULK1cNVAEdzzrevdtEGSUDvL75P3E',
+      page: 'pages/index/index',
+      data: {
+        thing1: { value: '测试儿童姓名' },
+        time2: { value: `${dateStr} 09:20` },
+        thing3: { value: '浦东中医院少儿推拿中心' },
+        thing4: { value: '这是一条主动点击触发的即时推送测试。' }
+      }
+    });
+    return {
+      success: true,
+      msg: '测试推送已成功下发，请检查微信通知服务。'
+    };
+  } catch (err) {
+    console.error('[调试推送] 发送失败:', err);
+    return {
+      success: false,
+      errMsg: err.message || '发送失败',
+      errCode: err.errCode
+    };
+  }
+}
+
