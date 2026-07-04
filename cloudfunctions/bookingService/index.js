@@ -156,8 +156,10 @@ async function addBooking(bookingData) {
   }
 
   // 4.3. 写入数据
+  const openid = cloud.getWXContext().OPENID;
   const record = {
     ...bookingData,
+    _openid: openid, // 显式写入 openid，供后续推送与拉取使用
     status: 'pending',
     createdAt: db.serverDate()
   };
@@ -165,6 +167,27 @@ async function addBooking(bookingData) {
   const res = await db.collection(COLLECTION_NAME).add({
     data: record
   });
+
+  // 【即时测试推送】预约成功后立即发送一条“预约成功确认”通知，便于即时验证消息模板及权限
+  if (openid && bookingData.templateId) {
+    try {
+      console.log(`正在发送预约成功即时测试通知... openid: ${openid}, templateId: ${bookingData.templateId}`);
+      await cloud.openapi.subscribeMessage.send({
+        touser: openid,
+        templateId: bookingData.templateId,
+        page: 'pages/index/index',
+        data: {
+          thing1: { value: patientName }, // 患儿姓名
+          time2: { value: `${bookingData.date} ${bookingData.time}` }, // 预约时间
+          thing3: { value: '浦东新区中医医院少儿推拿中心' }, // 地点/科室
+          thing4: { value: '预约成功！请提前15分钟到店签到。' } // 温馨提示
+        }
+      });
+      console.log('即时测试通知发送成功');
+    } catch (pushErr) {
+      console.warn('即时测试通知发送失败（可能未勾选允许通知或模板字段不匹配）:', pushErr);
+    }
+  }
 
   return {
     success: true,
@@ -204,6 +227,28 @@ async function updateBooking({ id, date, time, patientName, patientPhone, remark
       updatedAt: db.serverDate()
     }
   });
+
+  // 【即时测试推送】修改预约成功后立即发送一条修改成功确认通知，便于即时验证消息模板及权限
+  const openid = cloud.getWXContext().OPENID;
+  if (openid && templateId) {
+    try {
+      console.log(`正在发送修改预约即时测试通知... openid: ${openid}, templateId: ${templateId}`);
+      await cloud.openapi.subscribeMessage.send({
+        touser: openid,
+        templateId: templateId,
+        page: 'pages/index/index',
+        data: {
+          thing1: { value: patientName }, // 患儿姓名
+          time2: { value: `${date} ${time}` }, // 预约时间
+          thing3: { value: '浦东新区中医医院少儿推拿中心' }, // 地点/科室
+          thing4: { value: '您的预约已成功修改，请按新时间前来就诊。' } // 温馨提示
+        }
+      });
+      console.log('修改就诊即时测试通知发送成功');
+    } catch (pushErr) {
+      console.warn('修改就诊即时测试通知发送失败（可能未勾选允许通知或模板字段不匹配）:', pushErr);
+    }
+  }
 
   return {
     success: true
