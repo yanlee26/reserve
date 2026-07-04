@@ -7,8 +7,8 @@ cloud.init({
 const db = cloud.database();
 const _ = db.command;
 
-// 订阅消息模板 ID (如果您有多个环境或需要动态获取，也可以将其存入数据库集合中读取)
-const TEMPLATE_ID = ''; 
+// 订阅消息模板 ID (安全回退默认值，与 env.js 保持同步)
+const TEMPLATE_ID = 'QOS0o9srkEjZ1VULK1cNVAEdzzrevdtEGSUDvL75P3E'; 
 
 exports.main = async (event, context) => {
   const now = new Date();
@@ -32,15 +32,16 @@ exports.main = async (event, context) => {
     let failCount = 0;
 
     for (const item of bookings) {
-      // 解析预约时间，格式如: "2026-06-29 10:20"
-      const appointTimeStr = `${item.date} ${item.time}`;
-      const appointTime = new Date(appointTimeStr.replace(/-/g, '/')); // 兼容各种运行环境的时间解析形式
+      // 显式指定北京时间时区 (+08:00)，解决云开发服务器 Node 环境默认 UTC 时区导致的 8 小时时间偏移问题
+      // 转换后格式如: "2026-06-29T10:20:00+08:00"
+      const appointTimeStr = `${item.date}T${item.time}:00+08:00`;
+      const appointTime = new Date(appointTimeStr);
 
-      // 计算时间差（单位：分钟）
+      // 计算当前实际时间与预约时间的时间差（单位：分钟）
       const diffMs = appointTime.getTime() - now.getTime();
       const diffMins = diffMs / (1000 * 60);
 
-      console.log(`预约单 ID: ${item._id}, 患儿: ${item.patientName}, 时间: ${appointTimeStr}, 距离预约开始: ${diffMins.toFixed(1)} 分钟`);
+      console.log(`预约单 ID: ${item._id}, 患儿: ${item.patientName}, CST时间: ${appointTimeStr}, 距离预约开始: ${diffMins.toFixed(1)} 分钟`);
 
       // 当距离预约开始时间在 2 小时（120分钟）加 10 分钟缓冲区内（即 130 分钟内），且预约尚未过期（diffMins > 0）
       if (diffMins > 0 && diffMins <= 130) {
