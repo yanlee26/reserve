@@ -240,7 +240,11 @@ Page({
                 if (match) {
                   diagMsg = `\n\n【智能诊断】您微信后台配置的模板内容为：\n${match.content}\n\n当前代码中发送的字段为：thing1(姓名), time2(时间), thing3(地点), thing4(提示)。\n\n对比可见您缺少的 ${res.result.errMsg.match(/thing\d+|character_string\d+|time\d+|date\d+/i) || '某些'} 字段在微信官方定义中。请点击确定对照修改。`;
                 } else {
-                  diagMsg = `\n\n【智能诊断】在您小程序的可用模板列表中未匹配到当前 ID，请核对。`;
+                  // 如果未匹配到当前 ID，打印小程序后台拥有的全部模板定义以供参考
+                  const allTmplsStr = Array.isArray(list) 
+                    ? list.map(t => `【${t.title}】\nID: ${t.priTmplId}\n内容: ${t.content.replace(/\n/g, ' ')}`).join('\n\n')
+                    : JSON.stringify(list);
+                  diagMsg = `\n\n【智能诊断】在您小程序的可用模板列表中未匹配到当前 ID。您小程序的全部可用模板如下，请核对 ID 是否配置正确：\n\n${allTmplsStr}`;
                 }
               }
               wx.showModal({
