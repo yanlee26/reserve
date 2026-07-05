@@ -180,12 +180,13 @@ async function addBooking(bookingData) {
         touser: openid,
         templateId: bookingData.templateId,
         page: 'pages/index/index',
-        data: {
-          thing1: { value: patientName }, // 患儿姓名
-          time2: { value: `${bookingData.date} ${bookingData.time}` }, // 预约时间
-          thing3: { value: '浦东新区中医医院少儿推拿中心' }, // 地点/科室
-          thing4: { value: '预约成功！请提前15分钟到店签到。' } // 温馨提示
-        }
+        data: buildUniversalPayload({
+          patientName,
+          date: bookingData.date,
+          time: bookingData.time,
+          remarks: bookingData.remarks,
+          diagnosisId
+        })
       });
       console.log('即时测试通知发送成功');
     } catch (pushErr) {
@@ -241,12 +242,13 @@ async function updateBooking({ id, date, time, patientName, patientPhone, remark
         touser: openid,
         templateId: templateId,
         page: 'pages/index/index',
-        data: {
-          thing1: { value: patientName }, // 患儿姓名
-          time2: { value: `${date} ${time}` }, // 预约时间
-          thing3: { value: '浦东新区中医医院少儿推拿中心' }, // 地点/科室
-          thing4: { value: '您的预约已成功修改，请按新时间前来就诊。' } // 温馨提示
-        }
+        data: buildUniversalPayload({
+          patientName,
+          date,
+          time,
+          remarks,
+          diagnosisId: ''
+        })
       });
       console.log('修改就诊即时测试通知发送成功');
     } catch (pushErr) {
@@ -449,12 +451,13 @@ async function sendTestPush({ templateId }) {
       touser: openid,
       templateId: templateId || 'QOS0o9srkEjZ1VULK1cNVAEdzzrevdtEGSUDvL75P3E',
       page: 'pages/index/index',
-      data: {
-        thing1: { value: '测试儿童姓名' },
-        time2: { value: `${dateStr} 09:20` },
-        thing3: { value: '浦东中医院少儿推拿中心' },
-        thing4: { value: '这是一条主动点击触发的即时推送测试。' }
-      }
+      data: buildUniversalPayload({
+        patientName: '测试儿童姓名',
+        date: dateStr,
+        time: '09:20',
+        remarks: '调试即时测试推送',
+        diagnosisId: 'TCM-999'
+      })
     });
     return {
       success: true,
@@ -486,5 +489,48 @@ async function getTemplateDetails() {
       errCode: err.errCode
     };
   }
+}
+
+// 万能订阅消息数据包生成器：批量覆盖 thing1-20, character_string1-20, name1-20, time1-20, date1-20, phrase1-20 属性
+// 满足任意包含 thing8, time11, character_string1 等自定义组合字段的模板，确保不产生 47003 校验缺失错
+function buildUniversalPayload({ patientName, date, time, remarks, diagnosisId }) {
+  const timeStr = `${date} ${time}`;
+  const deptName = '浦东新区中医医院少儿推拿中心';
+  const tips = '请提前15分钟到店签到，不要迟到哦。';
+  const displayRemarks = remarks || '无症状备注';
+  const displayId = diagnosisId || 'TCM-999';
+
+  const payload = {};
+  
+  for (let i = 1; i <= 20; i++) {
+    // thing 字段 (最长 20 字符)
+    if (i === 1 || i === 2) {
+      payload[`thing${i}`] = { value: truncateString(patientName, 20) };
+    } else if (i === 3 || i === 8 || i === 12) {
+      payload[`thing${i}`] = { value: truncateString(deptName, 20) };
+    } else if (i === 4 || i === 5 || i === 6 || i === 7 || i === 10) {
+      payload[`thing${i}`] = { value: truncateString(tips, 20) };
+    } else {
+      payload[`thing${i}`] = { value: truncateString(displayRemarks, 20) };
+    }
+
+    // character_string 字段 (最长 32 字符)
+    payload[`character_string${i}`] = { value: truncateString(displayId, 32) };
+
+    // name 字段 (最长 10 字符)
+    payload[`name${i}`] = { value: truncateString(patientName, 10) };
+
+    // time / date / phrase 字段
+    payload[`time${i}`] = { value: timeStr };
+    payload[`date${i}`] = { value: date };
+    payload[`phrase${i}`] = { value: '预约成功' };
+  }
+
+  return payload;
+}
+
+function truncateString(str, maxLength) {
+  if (!str) return '';
+  return str.length > maxLength ? str.slice(0, maxLength - 1) + '…' : str;
 }
 
