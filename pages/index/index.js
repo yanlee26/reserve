@@ -165,7 +165,8 @@ Page({
     };
   },
 
-  // 3. 点击消息推送测试按钮，先自动拉取该模板的具体字段定义并展示，再唤起订阅授权推送
+  // 3. 点击消息推送测试按钮，唤起订阅授权并调用云开发函数下发推送
+  // 微信安全策略限制：wx.requestSubscribeMessage 必须在用户点击事件的同步执行流中触发，不能包在异步回调（如云函数返回或 wx.showModal 确定按钮）内部，否则会被拒绝唤起弹窗。
   triggerTestPush() {
     const templateId = envConfig.REMINDER_TEMPLATE_ID;
     if (!templateId) {
@@ -177,96 +178,13 @@ Page({
       return;
     }
 
-    wx.showLoading({ title: '拉取模板定义中...' });
-    wx.cloud.callFunction({
-      name: 'bookingService',
-      data: {
-        action: 'getTemplateDetails'
-      },
-      success: (res) => {
-        wx.hideLoading();
-        console.log('获取微信模板列表结果:', res.result);
-
-        let modalContent = '';
-        if (res.result && res.result.success && res.result.data) {
-          const list = res.result.data;
-          const match = Array.isArray(list) ? list.find(t => t.priTmplId === templateId) : null;
-          if (match) {
-            modalContent = `模版名称: ${match.title}\n模版ID: ${match.priTmplId}\n模版内容与所需字段如下，请核对是否与后台匹配:\n\n${match.content}`;
-          } else {
-            modalContent = `未在您小程序的可用模板列表中匹配到当前配置的 ID。\n\n您的全部模板列表：\n${JSON.stringify(list, null, 2)}`;
-          }
-        } else {
-          modalContent = `获取模板详情失败：${(res.result && res.result.errMsg) || '未知错误'}\n直接进行推送测试。`;
-        }
-
-        wx.showModal({
-          title: '微信订阅模板信息',
-          content: modalContent,
-          confirmText: '去授权推送',
-          cancelText: '取消',
-          confirmColor: '#0d9488',
-          success: (modalRes) => {
-            if (modalRes.confirm) {
-              this.proceedWithPush(templateId);
-            }
-          }
-        });
-      },
-      fail: (err) => {
-        wx.hideLoading();
-        console.error('拉取模板定义失败:', err);
-        // 网络失败则直接回退继续走推送
-        this.proceedWithPush(templateId);
-      }
-    });
-  },
-
-  // 4. 执行实际的订阅授权与推送动作
-  proceedWithPush(templateId) {
-    wx.showLoading({ title: '唤起授权中...' });
+    // 同步首要调用：直接唤起官方弹窗
     wx.requestSubscribeMessage({
       tmplIds: [templateId],
       success: (subRes) => {
-        wx.hideLoading();
         console.log('订阅授权结果:', subRes);
         if (subRes[templateId] === 'accept') {
-          wx.showLoading({ title: '正在推送...' });
-          // 调用云函数执行实时测试推送
-          wx.cloud.callFunction({
-            name: 'bookingService',
-            data: {
-              action: 'sendTestPush',
-              data: { templateId }
-            },
-            success: (res) => {
-              wx.hideLoading();
-              console.log('测试推送云函数返回:', res);
-              if (res.result && res.result.success) {
-                wx.showModal({
-                  title: '推送成功',
-                  content: '订阅消息已下发！请在微信服务通知中查看。\n云端日志：' + JSON.stringify(res.result),
-                  showCancel: false,
-                  confirmColor: '#0d9488'
-                });
-              } else {
-                wx.showModal({
-                  title: '推送失败',
-                  content: '云端推送校验未通过：' + ((res.result && res.result.errMsg) || '未知错误'),
-                  showCancel: false
-                });
-              }
-            },
-            fail: (err) => {
-              wx.hideLoading();
-              console.error('测试推送网络异常:', err);
-              wx.showModal({
-                title: '网络异常',
-                content: '云函数调用网络异常，请重试：' + JSON.stringify(err),
-                showCancel: false
-              });
-            }
-          });
+          this.executeTestPush(templateId);
         } else {
           wx.showModal({
             title: '授权被拒',
@@ -276,11 +194,78 @@ Page({
         }
       },
       fail: (subErr) => {
-        wx.hideLoading();
         console.error('订阅消息授权异常:', subErr);
         wx.showModal({
           title: '授权失败',
           content: '小程序唤起订阅弹窗失败：' + JSON.stringify(subErr),
+          showCancel: false
+        });
+      }
+    });
+  },
+
+  // 4. 执行实际的推送云函数调用，如失败则在回调中拉取模板进行诊断展示
+  executeTestPush(templateId) {
+    wx.showLoading({ title: '正在推送...' });
+    wx.cloud.callFunction({
+      name: 'bookingService',
+      data: {
+        action: 'sendTestPush',
+        data: { templateId }
+      },
+      success: (res) => {
+        wx.hideLoading();
+        console.log('测试推送云函数返回:', res);
+        if (res.result && res.result.success) {
+          wx.showModal({
+            title: '推送成功',
+            content: '订阅消息已下发！请在微信服务通知中查看。\n云端日志：' + JSON.stringify(res.result),
+            showCancel: false,
+            confirmColor: '#0d9488'
+          });
+        } else {
+          // 如果校验失败（比如 47003 键名不符），此时在回调中拉取模板格式方便开发者一目了然比对
+          wx.showLoading({ title: '正在诊断模板字段...' });
+          wx.cloud.callFunction({
+            name: 'bookingService',
+            data: {
+              action: 'getTemplateDetails'
+            },
+            success: (detailRes) => {
+              wx.hideLoading();
+              let diagMsg = '';
+              if (detailRes.result && detailRes.result.success && detailRes.result.data) {
+                const list = detailRes.result.data;
+                const match = Array.isArray(list) ? list.find(t => t.priTmplId === templateId) : null;
+                if (match) {
+                  diagMsg = `\n\n【智能诊断】您微信后台配置的模板内容为：\n${match.content}\n\n当前代码中发送的字段为：thing1(姓名), time2(时间), thing3(地点), thing4(提示)。\n\n对比可见您缺少的 ${res.result.errMsg.match(/thing\d+|character_string\d+|time\d+|date\d+/i) || '某些'} 字段在微信官方定义中。请点击确定对照修改。`;
+                } else {
+                  diagMsg = `\n\n【智能诊断】在您小程序的可用模板列表中未匹配到当前 ID，请核对。`;
+                }
+              }
+              wx.showModal({
+                title: '推送失败',
+                content: `云端推送校验未通过：${(res.result && res.result.errMsg) || '未知错误'}${diagMsg}`,
+                showCancel: false
+              });
+            },
+            fail: () => {
+              wx.hideLoading();
+              wx.showModal({
+                title: '推送失败',
+                content: `云端推送校验未通过：${(res.result && res.result.errMsg) || '未知错误'}\n(获取模板结构失败)`,
+                showCancel: false
+              });
+            }
+          });
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        console.error('测试推送网络异常:', err);
+        wx.showModal({
+          title: '网络异常',
+          content: '云函数调用网络异常，请重试：' + JSON.stringify(err),
           showCancel: false
         });
       }
