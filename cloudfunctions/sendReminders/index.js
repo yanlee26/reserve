@@ -8,7 +8,39 @@ const db = cloud.database();
 const _ = db.command;
 
 // 订阅消息模板 ID (安全回退默认值，与 env.js 保持同步)
-const TEMPLATE_ID = 'QOS0o9srkEjZ1VULK1cNVAEdzzrevdtEGSUDvL75P3E'; 
+const TEMPLATE_ID = 'QOS0o9srkEjZ1VULK1cNVAEdzzrevdtEGSUDvL75P3E';
+
+// 门诊所在时区：新西兰奥克兰
+// 注意：奥克兰有夏令时切换 (NZDT +13:00 大约每年9月最后一个周日 ~ 次年4月第一个周日，其余时间为 NZST +12:00)，
+// 不能像之前的北京时间那样用固定偏移量 "+08:00"，否则每年会有约半年时间产生 1 小时误差。
+const APPOINTMENT_TIMEZONE = 'Pacific/Auckland';
+
+// 将预约单上保存的 "YYYY-MM-DD" + "HH:mm" 解读为奥克兰本地墙上时间，返回其对应的正确 UTC 时刻。
+// 原理：先假设该墙上时间就是 UTC 得到一个初始猜测时刻，再用 Intl API 查出该猜测时刻在奥克兰当地实际显示的时间，
+// 两者之差即为当时适用的时区偏移量（自动识别是否处于夏令时），据此修正得到真实的 UTC 时刻。
+function aucklandWallTimeToUtc(dateStr, timeStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const [hour, minute] = timeStr.split(':').map(Number);
+
+  const guessUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone: APPOINTMENT_TIMEZONE,
+    hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+  const parts = dtf.formatToParts(guessUtc).reduce((acc, p) => {
+    if (p.type !== 'literal') acc[p.type] = parseInt(p.value, 10);
+    return acc;
+  }, {});
+  if (parts.hour === 24) parts.hour = 0; // 部分环境会把午夜格式化为 24 而非 0
+
+  const asIfLocalUtc = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+  const offsetMs = guessUtc.getTime() - asIfLocalUtc;
+
+  return new Date(guessUtc.getTime() + offsetMs);
+}
 
 exports.main = async (event, context) => {
   const now = new Date();
@@ -32,16 +64,14 @@ exports.main = async (event, context) => {
     let failCount = 0;
 
     for (const item of bookings) {
-      // 显式指定北京时间时区 (+08:00)，解决云开发服务器 Node 环境默认 UTC 时区导致的 8 小时时间偏移问题
-      // 转换后格式如: "2026-06-29T10:20:00+08:00"
-      const appointTimeStr = `${item.date}T${item.time}:00+08:00`;
-      const appointTime = new Date(appointTimeStr);
+      // 按奥克兰本地时间解读预约单上的日期与时间，自动处理夏令时，解决云开发服务器 Node 环境默认 UTC 时区导致的时间偏移问题
+      const appointTime = aucklandWallTimeToUtc(item.date, item.time);
 
       // 计算当前实际时间与预约时间的时间差（单位：分钟）
       const diffMs = appointTime.getTime() - now.getTime();
       const diffMins = diffMs / (1000 * 60);
 
-      console.log(`预约单 ID: ${item._id}, 患儿: ${item.patientName}, CST时间: ${appointTimeStr}, 距离预约开始: ${diffMins.toFixed(1)} 分钟`);
+      console.log(`预约单 ID: ${item._id}, 患儿: ${item.patientName}, 奥克兰本地时间: ${item.date} ${item.time}, 距离预约开始: ${diffMins.toFixed(1)} 分钟`);
 
       // 当距离预约开始时间在 2 小时（120分钟）加 10 分钟缓冲区内（即 130 分钟内），且预约尚未过期（diffMins > 0）
       if (diffMins > 0 && diffMins <= 130) {
