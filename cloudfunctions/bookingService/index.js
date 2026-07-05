@@ -35,10 +35,6 @@ exports.main = async (event, context) => {
         return await sendSmsCode(data);
       case 'verifyLogin':
         return await verifyLogin(data);
-      case 'sendTestPush':
-        return await sendTestPush(data);
-      case 'getTemplateDetails':
-        return await getTemplateDetails();
       default:
         return {
           success: false,
@@ -434,99 +430,20 @@ async function verifyLogin({ role, codeValue, phone, verifyCode }) {
   };
 }
 
-// 【即时测试推送调试动作】主动由用户点击触发，模拟发送就诊提醒，返回成功状态或报错信息
-async function sendTestPush({ templateId }) {
-  const openid = cloud.getWXContext().OPENID;
-  if (!openid) {
-    return { success: false, errMsg: '获取 openid 失败' };
-  }
-
-  try {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dateStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
-
-    console.log(`[调试推送] 正在向 openid: ${openid} 发送测试订阅消息...`);
-    await cloud.openapi.subscribeMessage.send({
-      touser: openid,
-      templateId: templateId || 'QOS0o9srkEjZ1VULK1cNVAEdzzrevdtEGSUDvL75P3E',
-      page: 'pages/index/index',
-      data: buildUniversalPayload({
-        patientName: '测试儿童姓名',
-        date: dateStr,
-        time: '09:20',
-        remarks: '调试即时测试推送',
-        diagnosisId: 'TCM-999'
-      })
-    });
-    return {
-      success: true,
-      msg: '测试推送已成功下发，请检查微信通知服务。'
-    };
-  } catch (err) {
-    console.error('[调试推送] 发送失败:', err);
-    return {
-      success: false,
-      errMsg: err.message || '发送失败',
-      errCode: err.errCode
-    };
-  }
-}
-
-// 获取订阅消息模板列表以方便查询字段属性
-async function getTemplateDetails() {
-  try {
-    const res = await cloud.openapi.subscribeMessage.getTemplateList({});
-    return {
-      success: true,
-      data: res.list || res
-    };
-  } catch (err) {
-    console.error('获取模板列表失败:', err);
-    return {
-      success: false,
-      errMsg: err.message || '获取失败',
-      errCode: err.errCode
-    };
-  }
-}
-
-// 万能订阅消息数据包生成器：批量覆盖 thing1-20, character_string1-20, name1-20, time1-20, date1-20, phrase1-20 属性
-// 满足任意包含 thing8, time11, character_string1 等自定义组合字段的模板，确保不产生 47003 校验缺失错
+// 按微信公众平台后台实际配置的「预约通知」模板精确赋值（字段编号来自微信订阅消息模板列表接口返回的模板 content）：
+// 温馨提示 -> thing8，开始时间 -> time22，就诊人 -> thing65，就诊时间 -> time67
+// 注：微信关键词库编号是全局共享分配，不按模板内顺序从 1 递增，此前用「1-N 遍历猜测」的方式两次遗漏了
+// 高编号字段（time22、thing65）导致 47003，因此改为按模板真实字段精确赋值。
 function buildUniversalPayload({ patientName, date, time, remarks, diagnosisId }) {
   const timeStr = `${date} ${time}`;
-  const deptName = '浦东新区中医医院少儿推拿中心';
   const tips = '请提前15分钟到店签到，不要迟到哦。';
-  const displayRemarks = remarks || '无症状备注';
-  const displayId = diagnosisId || 'TCM-999';
 
-  const payload = {};
-  
-  for (let i = 1; i <= 20; i++) {
-    // thing 字段 (最长 20 字符)
-    if (i === 1 || i === 2) {
-      payload[`thing${i}`] = { value: truncateString(patientName, 20) };
-    } else if (i === 3 || i === 8 || i === 12) {
-      payload[`thing${i}`] = { value: truncateString(deptName, 20) };
-    } else if (i === 4 || i === 5 || i === 6 || i === 7 || i === 10) {
-      payload[`thing${i}`] = { value: truncateString(tips, 20) };
-    } else {
-      payload[`thing${i}`] = { value: truncateString(displayRemarks, 20) };
-    }
-
-    // character_string 字段 (最长 32 字符)
-    payload[`character_string${i}`] = { value: truncateString(displayId, 32) };
-
-    // name 字段 (最长 10 字符)
-    payload[`name${i}`] = { value: truncateString(patientName, 10) };
-
-    // time / date / phrase 字段
-    payload[`time${i}`] = { value: timeStr };
-    payload[`date${i}`] = { value: date };
-    payload[`phrase${i}`] = { value: '预约成功' };
-  }
-
-  return payload;
+  return {
+    thing8: { value: truncateString(tips, 20) },
+    time22: { value: timeStr },
+    thing65: { value: truncateString(patientName, 20) },
+    time67: { value: timeStr }
+  };
 }
 
 function truncateString(str, maxLength) {

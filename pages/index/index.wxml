@@ -94,13 +94,6 @@
     <button class="btn btn-primary modal-ok-btn" bindtap="closeNotice">我知道了</button>
   </view>
 
-  <!-- 调试消息推送测试器 -->
-  <view class="debug-section card" style="margin-top: 40rpx; padding: 30rpx; background: rgba(13, 148, 136, 0.04); border: 2rpx dashed rgba(13, 148, 136, 0.25); border-radius: var(--radius-md);">
-    <view style="font-size: 24rpx; font-weight: bold; color: var(--primary); margin-bottom: 12rpx; text-align: center;">⚙️ 消息推送调试器 (开发者测试专区)</view>
-    <button class="btn btn-primary" style="height: 72rpx; line-height: 72rpx; font-size: 24rpx; background-color: var(--primary); border: none; font-weight: bold; border-radius: var(--radius-full);" bindtap="triggerTestPush">点击唤起授权并立即发送测试推送</button>
-    <view style="font-size: 18rpx; color: var(--text-light); text-align: center; margin-top: 10rpx;">提示：点击会首先唤起微信官方的订阅通知弹窗，请勾选“允许”</view>
-  </view>
-
   <!-- 底部注销登录链接 -->
   <view class="logout-link-box">
     <text class="logout-btn" bindtap="onLogout">切换账号/注销登录</text>
