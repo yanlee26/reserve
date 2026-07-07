@@ -109,13 +109,13 @@ function updateBooking(id, date, time, patientName, patientPhone, remarks = '', 
 }
 
 // 6. 取消预约
-function cancelBooking(id, reason) {
+function cancelBooking(id, reason, templateId) {
   return new Promise((resolve, reject) => {
     wx.cloud.callFunction({
       name: 'bookingService',
       data: {
         action: 'cancelBooking',
-        data: { id, reason }
+        data: { id, reason, templateId }
       },
       success: res => {
         if (res.result && res.result.success) {

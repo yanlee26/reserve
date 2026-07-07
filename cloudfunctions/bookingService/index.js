@@ -258,7 +258,10 @@ async function updateBooking({ id, date, time, patientName, patientPhone, remark
 }
 
 // 6. 取消预约
-async function cancelBooking({ id, reason }) {
+async function cancelBooking({ id, reason, templateId }) {
+  const bookingRes = await db.collection(COLLECTION_NAME).doc(id).get();
+  const booking = bookingRes.data;
+
   await db.collection(COLLECTION_NAME).doc(id).update({
     data: {
       status: 'cancelled',
@@ -266,6 +269,31 @@ async function cancelBooking({ id, reason }) {
       cancelledAt: db.serverDate()
     }
   });
+
+  // 【即时测试推送】取消预约成功后立即发送一条取消确认通知，便于即时验证消息模板及权限
+  const openid = cloud.getWXContext().OPENID;
+  const activeTemplateId = templateId || booking.templateId;
+  if (openid && activeTemplateId) {
+    try {
+      console.log(`正在发送取消预约即时确认通知... openid: ${openid}, templateId: ${activeTemplateId}`);
+      await cloud.openapi.subscribeMessage.send({
+        touser: openid,
+        templateId: activeTemplateId,
+        page: 'pages/index/index',
+        data: buildUniversalPayload({
+          patientName: booking.patientName,
+          date: booking.date,
+          time: booking.time,
+          remarks: booking.remarks,
+          diagnosisId: booking.diagnosisId,
+          tips: '您的预约已成功取消。'
+        })
+      });
+      console.log('取消预约即时确认通知发送成功');
+    } catch (pushErr) {
+      console.warn('取消预约即时确认通知发送失败（可能未勾选允许通知或模板字段不匹配）:', pushErr);
+    }
+  }
 
   return {
     success: true
@@ -434,12 +462,12 @@ async function verifyLogin({ role, codeValue, phone, verifyCode }) {
 // 温馨提示 -> thing8，开始时间 -> time22，就诊人 -> thing65，就诊时间 -> time67
 // 注：微信关键词库编号是全局共享分配，不按模板内顺序从 1 递增，此前用「1-N 遍历猜测」的方式两次遗漏了
 // 高编号字段（time22、thing65）导致 47003，因此改为按模板真实字段精确赋值。
-function buildUniversalPayload({ patientName, date, time, remarks, diagnosisId }) {
+function buildUniversalPayload({ patientName, date, time, remarks, diagnosisId, tips }) {
   const timeStr = `${date} ${time}`;
-  const tips = '请提前15分钟到店签到，不要迟到哦。';
+  const displayTips = tips || '请提前15分钟到店签到，不要迟到哦。';
 
   return {
-    thing8: { value: truncateString(tips, 20) },
+    thing8: { value: truncateString(displayTips, 20) },
     time22: { value: timeStr },
     thing65: { value: truncateString(patientName, 20) },
     time67: { value: timeStr }

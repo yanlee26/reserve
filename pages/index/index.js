@@ -1,6 +1,13 @@
 // pages/index/index.js
 const db = require('../../utils/db.js');
 
+let envConfig = { REMINDER_TEMPLATE_ID: '' };
+try {
+  envConfig = require('../../env.js');
+} catch (e) {
+  console.warn('提示: 未找到 env.js，将无法唤起订阅消息弹窗');
+}
+
 Page({
   data: {
     bookings: [],
@@ -71,33 +78,52 @@ Page({
       success: (res) => {
         if (res.confirm) {
           const reason = res.content.trim() || '用户自取消';
-          wx.showLoading({
-            title: '正在提交',
-            mask: true
-          });
-          
-          db.cancelBooking(id, reason).then(success => {
-            wx.hideLoading();
-            if (success) {
-              wx.showToast({
-                title: '已取消预约',
-                icon: 'success'
-              });
-              this.loadMyBookings();
-            } else {
-              wx.showToast({
-                title: '取消失败，请重试',
-                icon: 'none'
-              });
-            }
-          }).catch(err => {
-            wx.hideLoading();
-            wx.showModal({
-              title: '提示',
-              content: '网络异常，取消失败',
-              showCancel: false
+          const templateId = envConfig.REMINDER_TEMPLATE_ID;
+
+          const doCancel = () => {
+            wx.showLoading({
+              title: '正在提交',
+              mask: true
             });
-          });
+
+            db.cancelBooking(id, reason, templateId).then(success => {
+              wx.hideLoading();
+              if (success) {
+                wx.showToast({
+                  title: '已取消预约',
+                  icon: 'success'
+                });
+                this.loadMyBookings();
+              } else {
+                wx.showToast({
+                  title: '取消失败，请重试',
+                  icon: 'none'
+                });
+              }
+            }).catch(err => {
+              wx.hideLoading();
+              wx.showModal({
+                title: '提示',
+                content: '网络异常，取消失败',
+                showCancel: false
+              });
+            });
+          };
+
+          if (templateId) {
+            wx.requestSubscribeMessage({
+              tmplIds: [templateId],
+              success: (subRes) => {
+                console.log('取消预约订阅消息授权成功:', subRes);
+              },
+              fail: (subErr) => {
+                console.warn('取消预约订阅消息授权异常:', subErr);
+              },
+              complete: doCancel
+            });
+          } else {
+            doCancel();
+          }
         }
       }
     });
